@@ -11,3 +11,11 @@ INTEGRANTES:
 - Bruno Soares Vilalba - 10443917
 
 - Emanuela Caetano - 10428527
+
+
+## Como configurar o ambiente e rodar o projeto
+1.
+2.
+3.
+4.
+5.
