@@ -16,10 +16,16 @@ INTEGRANTES:
 ## Como configurar o ambiente e rodar o projeto
 1.
 
+
 2.
+
 
 3.
 
+
 4.
 
+
 5.
+
+
