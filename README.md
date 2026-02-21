@@ -3,7 +3,7 @@
 
 ### Projeto final da disciplina de Modelagem de sistema.
 
-=======
+
 INTEGRANTES:
 
 - Arthur Garcia - 10436529
