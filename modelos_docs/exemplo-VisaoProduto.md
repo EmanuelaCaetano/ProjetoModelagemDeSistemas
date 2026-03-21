@@ -2,39 +2,51 @@
 
 ## 1. Identificação do Produto
 
-**Nome do produto:** EstudaAI  
+**Nome do produto:** Web.Clínica 
 **Versão do documento:** 1.0  
-**Data:** 08/03/2026  
-**Equipe responsável:** Equipe do projeto  
+**Data:** 18/03/2026  
+**Equipe responsável:** Arthur Garcia, Emanuela Caetano, Bruno Vilalba  
 
 ## 2. Visão Geral
 
-O **EstudaAI** é um sistema web voltado ao apoio do processo de aprendizagem. Seu foco é recomendar trilhas de estudo com base no perfil, nas dificuldades e nos objetivos do aluno.
+O Web.Clínica consiste no desenvolvimento de um site para uma clínica veterinária, com o objetivo de organizar e facilitar o atendimento aos clientes e seus animais.
 
-O sistema busca organizar conteúdos, sugerir percursos de aprendizagem e apoiar o acompanhamento da evolução do estudante ao longo do semestre.
+O sistema terá login com e-mail e senha e terá três tipos de usuários: cliente (dono do animal), médico veterinário e administrador. Cada tipo de usuário terá acesso apenas às funções relacionadas a sua funcionalidade.
+
+O cliente poderá se cadastrar no site, cadastrar seus animais e agendar consultas por meio de uma agenda online. Também poderá visualizar o histórico de consultas e informações necessárias sobre seus pets, para confirmar ou alterar informações.
+
+O médico veterinário poderá acessar sua agenda de atendimentos e registrar informações sobre cada consulta, como diagnóstico, observações e medicamentos prescritos, atualizando o prontuário do animal.
+
+O administrador será responsável por gerenciar o sistema, podendo cadastrar médicos, controlar usuários e acompanhar informações gerais da clínica.
+
+O sistema utilizará um banco de dados para armazenar todas as informações, como dados dos usuários, dados dos animais, consultas e registros médicos. Além disso, deverá garantir que um mesmo horário não possa ser agendado por mais de uma pessoa e que cada usuário tenha acesso apenas às funcionalidades permitidas para sua posição.
+
+O projeto tem como finalidade aplicar os conhecimentos adquiridos em desenvolvimento ao longo do curso, banco de dados e controle de acesso, simulando um sistema real utilizado por uma clínica veterinária.
+
 
 ## 3. Problema
 
-Muitos alunos têm dificuldade para organizar seus estudos, identificar prioridades e escolher materiais adequados para cada etapa da aprendizagem. Em vários casos, o estudo ocorre de forma desestruturada, sem acompanhamento claro do progresso.
+Atualmente, muitas clínicas veterinárias ainda utilizam métodos manuais ou pouco organizados para gerenciar consultas, dados dos clientes e informações dos animais, como anotações em papel ou sistemas pouco integrados.
 
-Isso gera baixa eficiência, retrabalho e dificuldade para atingir os objetivos de aprendizagem.
+Isso pode causar problemas como perda de informações, dificuldade no acesso ao histórico dos pacientes, erros de agendamento e falta de organização na rotina da clínica.
+
 
 ## 4. Objetivo do Produto
 
-O produto tem como objetivo:
+O projeto tem como objetivo:
 
-- recomendar trilhas de aprendizagem de forma orientada
-- ajudar o aluno a planejar seus estudos
-- acompanhar progresso e desempenho
-- apoiar o professor na organização de conteúdos e recomendações
+- .
+- ajudar a Clínica a agendar consultas com eficiências
+- gerenciar consultas e agendamentos 
+- apoiar medicos e cliente com os horários, evitando conflitos e falta de consultas
 
 ## 5. Público-Alvo
 
 O sistema é destinado principalmente a:
 
-- alunos de graduação
-- professores
-- coordenadores acadêmicos
+- Tutores de pets
+- Médicos Veterinários
+- Clínicas Veteinárias-
 
 ## 6. Principais Necessidades dos Usuários
 
