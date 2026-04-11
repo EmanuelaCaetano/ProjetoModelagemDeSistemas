@@ -1,0 +1,57 @@
+# ADR 002
+
+**Título:** Adoção de arquitetura monolítica com React e Node.js no sistema de clínica veterinária  
+**Data:** 10/04/2026  
+**Responsável:** Arthur Batista  
+**Status:** Aceito  
+
+---
+
+## Contexto
+
+Durante o desenvolvimento do sistema web para a clínica veterinária, foi necessário definir a arquitetura da aplicação. O sistema envolve funcionalidades como cadastro de usuários, gerenciamento de animais, agendamento de consultas e registro de prontuários, exigindo uma estrutura organizada, porém adequada ao nível de complexidade do projeto acadêmico.
+
+---
+
+## Decisão
+
+Foi adotada uma arquitetura monolítica, utilizando React no frontend e Node.js com TypeScript no backend.
+
+---
+
+## Justificativa
+
+A escolha foi feita pelos seguintes motivos:
+
+- maior simplicidade de desenvolvimento e entendimento  
+- facilidade de implementação para um projeto acadêmico  
+- menor complexidade na configuração e manutenção  
+- integração direta entre frontend, backend e banco de dados  
+- suficiente para atender às necessidades do sistema proposto  
+
+---
+
+## Alternativas consideradas
+
+### Microsserviços  
+Foi considerado por ser uma arquitetura moderna e escalável. No entanto, foi descartado devido à sua complexidade, que não se justifica para um projeto de pequeno porte como este.
+
+### Arquitetura em camadas  
+Também foi avaliada. Apesar de ser uma boa prática de organização, foi considerada desnecessária para o nível de complexidade do sistema, podendo aumentar o tempo de desenvolvimento.
+
+---
+
+## Consequências
+
+Com essa decisão, o sistema passa a ter:
+
+- desenvolvimento mais rápido  
+- estrutura mais simples e fácil de entender  
+- menor custo de implementação  
+- facilidade de testes e integração  
+
+Como pontos de atenção, a equipe precisará lidar com:
+
+- menor escalabilidade em comparação com microsserviços  
+- possível acoplamento entre componentes do sistema  
+- necessidade de boa organização do código para evitar complexidade futura  
