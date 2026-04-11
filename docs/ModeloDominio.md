@@ -3,7 +3,7 @@
 ## Sistema: Clinica veterinária
 
 O modelo conceitual de domínio abaixo representa os principais conceitos do sistema e os relacionamentos entre eles.
-
+@startuml
 classDiagram
     class Usuario {
         +id
@@ -52,7 +52,7 @@ classDiagram
     Usuario <|-- Cliente
     Usuario <|-- MedicoVeterinario
     Usuario <|-- Administrador
-
+@enduml
     Cliente "1" --> "0..*" Animal : possui
     Animal "1" --> "1" Prontuario : possui
     MedicoVeterinario "1" --> "0..*" Consulta : realiza
