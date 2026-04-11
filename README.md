@@ -1,7 +1,7 @@
 # ProjetoFinalModelagemDeSistemas
 
 
-### Projeto final da disciplina de Modelagem de sistema.
+### Projeto final da disciplina de Modelagem de Sistema.
 
 
 INTEGRANTES:
