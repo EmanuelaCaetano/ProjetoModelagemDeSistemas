@@ -2,44 +2,28 @@
 
 ## Instruções
 
-Regras de negócio descrevem normas, restrições, condições e critérios que o sistema deve respeitar.
+- Regras de negócio descrevem normas, restrições e condições que devem ser seguidas no funcionamento da clínica veterinária.
 
-Elas ajudam a definir como o domínio funciona na prática.
+- Elas representam como os processos da clínica acontecem na prática, como atendimento de animais, registro de prontuários, controle de agenda e aplicação de vacinas.
 
-Escreva as regras de forma clara, objetiva e direta.
+- As regras devem ser escritas de forma clara, objetiva e direta, focando nas atividades da clínica e não em detalhes do sistema.
 
----
-
-## Exemplo de escrita
-
-- O aluno só pode se matricular em disciplinas com vagas disponíveis.
-- O cliente só pode cancelar um pedido antes da emissão da nota fiscal.
-- Somente administradores podem excluir usuários do sistema.
+- Evite descrever telas ou funcionalidades específicas, priorizando regras que representem o comportamento e as responsabilidades no ambiente real da clínica.
 
 ---
 
-## Modelo para preenchimento
 
-### RB01. __________________________
-____________________________________________________________  
-____________________________________________________________  
+## Exemplos
 
-### RB02. __________________________
-____________________________________________________________  
-____________________________________________________________  
+### RB01. O animal só pode ser atendido se estiver vinculado a um cliente 
 
-### RB03. __________________________
-____________________________________________________________  
-____________________________________________________________  
+### RB02. A consulta deve ser realizada por um médico veterinário habilitado 
 
-### RB04. __________________________
-____________________________________________________________  
-____________________________________________________________  
+### RB03. A agenda da clínica não pode possuir conflitos de horário  
 
-### RB05. __________________________
-____________________________________________________________  
-____________________________________________________________  
+### RB04. A vacinação deve seguir o calendário adequado para cada animal  
 
+### RB05. Somente administradores podem cadastrar médicos veterinários
 ---
 
 ## Estrutura recomendada
@@ -59,39 +43,26 @@ Uma boa forma de escrever é:
 ## Tipos comuns de regras de negócio
 
 ### Limites
-Definem quantidades máximas, mínimas ou faixas permitidas.
 
-**Exemplos:**
-- o cliente pode comprar no máximo 5 unidades por item
-- o aluno pode cursar no máximo 8 disciplinas por semestre
+- A clínica pode atender um número limitado de consultas por dia
+- Um médico pode realizar um número máximo de atendimentos por período
 
 ### Condições
-Definem o que precisa ser verdadeiro para uma ação ocorrer.
 
-**Exemplos:**
-- a matrícula só pode ocorrer no período definido
-- o pedido só pode ser cancelado antes do pagamento ser confirmado
+- A consulta só pode ser realizada se estiver previamente agendada
+- O animal só pode ser atendido se estiver vinculado a um cliente
 
 ### Restrições de acesso
-Definem quem pode executar determinadas ações.
 
-**Exemplos:**
-- somente administradores podem excluir cadastros
-- apenas professores da disciplina podem lançar notas
+- Somente médicos veterinários podem registrar prontuários
+- Apenas administradores podem cadastrar novos médicos
 
 ### Critérios de cálculo ou validação
 Definem regras para aprovar, calcular ou validar dados.
 
 **Exemplos:**
-- a aprovação exige nota mínima 6,0
-- o desconto é aplicado apenas em compras acima de determinado valor
+- O prontuário deve conter diagnóstico e data do atendimento
+- O registro de vacinação deve incluir o tipo de vacina e a data de aplicação
 
 ---
 
-## Orientações para os alunos
-
-- escreva regras que representem normas reais do domínio
-- evite descrever telas ou botões
-- evite confundir regra de negócio com requisito funcional
-- pense em restrições, validações e condições que o sistema precisa obedecer
-- use frases objetivas e verificáveis
