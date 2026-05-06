@@ -65,6 +65,7 @@ const Login = () => {
         </form>
 
         <div className="login-footer">
+          <p>Não tem conta? <a href="/register">Cadastre-se</a></p>
           <h3>Usuários de Teste:</h3>
           <div className="test-users">
             <div className="test-user">

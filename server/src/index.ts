@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes";
+import animalRoutes from "./routes/animalRoutes";
 import "./config/db";
 
 const app = express();
@@ -12,6 +13,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/auth", authRoutes);
+app.use("/animals", animalRoutes);
 
 // Aguardar um pouco para garantir que o banco foi inicializado
 setTimeout(() => {

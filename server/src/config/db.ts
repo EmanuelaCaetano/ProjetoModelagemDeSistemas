@@ -56,6 +56,20 @@ db.serialize(async () => {
       );
     `);
 
+    await dbRun(`
+      CREATE TABLE IF NOT EXISTS animals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        especie TEXT NOT NULL,
+        raca TEXT,
+        idade INTEGER,
+        peso REAL,
+        clienteId INTEGER NOT NULL,
+        createdAt TEXT NOT NULL,
+        FOREIGN KEY (clienteId) REFERENCES users(id)
+      );
+    `);
+
     const countResult = await dbGet("SELECT COUNT(1) AS count FROM users");
     if (countResult.count === 0) {
       const seedUsers = [
