@@ -33,6 +33,8 @@ const Dashboard = () => {
     switch (user.tipoUsuario) {
       case 'administrador':
         return 'Painel Administrativo';
+      case 'secretario':
+        return 'Painel da Secretaria';
       case 'medico':
         return 'Painel Médico';
       case 'cliente':
@@ -66,6 +68,33 @@ const Dashboard = () => {
               <div className="feature-card">
                 <h3>⚙️ Configurações</h3>
                 <p>Configurar sistema e preferências</p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'secretario':
+        return (
+          <div className="dashboard-content">
+            <div className="welcome-section">
+              <h2>👋 Olá, {user.nome}!</h2>
+              <p>Gerencie os agendamentos e operações da clínica.</p>
+            </div>
+
+            <div className="features-grid">
+              <div className="feature-card" onClick={() => setShowUserManagement(true)} style={{ cursor: 'pointer' }}>
+                <h3>👥 Gerenciar Secretários</h3>
+                <p>Cadastrar e gerenciar secretários</p>
+              </div>
+
+              <div className="feature-card">
+                <h3>📅 Agendamentos</h3>
+                <p>Gerenciar consultas e horários</p>
+              </div>
+
+              <div className="feature-card">
+                <h3>📋 Consultas</h3>
+                <p>Visualizar e filtrar consultas</p>
               </div>
             </div>
           </div>

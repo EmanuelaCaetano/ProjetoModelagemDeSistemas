@@ -1,7 +1,7 @@
 import { dbGet, dbRun } from "../config/db";
 import { hashPassword } from "../utils/password";
 
-export type UserRole = "cliente" | "medico" | "administrador";
+export type UserRole = "cliente" | "medico" | "administrador" | "secretario";
 
 export interface UserBase {
   nome: string;

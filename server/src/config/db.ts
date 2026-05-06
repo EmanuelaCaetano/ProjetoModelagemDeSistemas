@@ -46,7 +46,7 @@ db.serialize(async () => {
         nome TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
         senha TEXT NOT NULL,
-        role TEXT NOT NULL CHECK(role IN ('cliente','medico','administrador')),
+        role TEXT NOT NULL CHECK(role IN ('cliente','medico','administrador','secretario')),
         telefone TEXT,
         endereco TEXT,
         crmv TEXT,
@@ -87,6 +87,14 @@ db.serialize(async () => {
           role: "medico",
           crmv: "CRMV-12345",
           especialidade: "Clínica Geral",
+        },
+        {
+          nome: "Secretária Maria",
+          email: "secretaria@newpet.com",
+          senha: hashPassword("Secretaria@123"),
+          role: "secretario",
+          nivelAcesso: "parcial",
+          telefone: "+55 11 88888-8888",
         },
         {
           nome: "Cliente Padrão",

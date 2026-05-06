@@ -75,6 +75,9 @@ const Login = () => {
               <strong>Médico:</strong> medico@newpet.com / Medico@123
             </div>
             <div className="test-user">
+              <strong>Secretária:</strong> secretaria@newpet.com / Secretaria@123
+            </div>
+            <div className="test-user">
               <strong>Cliente:</strong> cliente@newpet.com / Cliente@123
             </div>
           </div>

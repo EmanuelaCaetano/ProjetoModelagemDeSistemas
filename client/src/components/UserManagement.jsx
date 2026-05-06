@@ -13,7 +13,7 @@ const UserManagement = () => {
     nome: '',
     email: '',
     senha: '',
-    role: 'medico',
+    role: user?.tipoUsuario === 'administrador' ? 'medico' : 'secretario',
     telefone: '',
     endereco: '',
     crmv: '',
@@ -22,6 +22,9 @@ const UserManagement = () => {
   });
   const [error, setError] = useState('');
 
+  // Verificar se o usuário pode gerenciar médicos
+  const canManageMedicos = user?.tipoUsuario === 'administrador';
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -29,8 +32,15 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       const response = await axios.get('/auth/users');
-      // Filtrar apenas médicos e administradores
-      const filteredUsers = response.data.filter(u => u.tipoUsuario !== 'cliente');
+      // Filtrar usuários baseado no nível de acesso
+      let filteredUsers = response.data.filter(u => u.tipoUsuario !== 'cliente');
+      
+      if (user?.tipoUsuario === 'secretario') {
+        // Secretários só podem ver outros secretários
+        filteredUsers = filteredUsers.filter(u => u.tipoUsuario === 'secretario');
+      }
+      // Administradores veem todos (médicos e secretários)
+      
       setUsers(filteredUsers);
     } catch (error) {
       console.error('Erro ao buscar usuários:', error);
@@ -115,9 +125,9 @@ const UserManagement = () => {
   return (
     <div className="user-management">
       <div className="management-header">
-        <h2>👥 Gerenciamento de Usuários</h2>
+        <h2>👥 {canManageMedicos ? 'Gerenciamento de Usuários' : 'Gerenciamento de Secretários'}</h2>
         <button onClick={() => setShowForm(true)} className="add-button">
-          + Novo Usuário
+          + Novo {canManageMedicos ? 'Usuário' : 'Secretário'}
         </button>
       </div>
 
@@ -207,8 +217,15 @@ const UserManagement = () => {
                     onChange={handleInputChange}
                     required
                   >
-                    <option value="medico">Médico Veterinário</option>
-                    <option value="administrador">Administrador/Secretário</option>
+                    {canManageMedicos ? (
+                      <>
+                        <option value="medico">Médico Veterinário</option>
+                        <option value="secretario">Secretário</option>
+                        <option value="administrador">Administrador</option>
+                      </>
+                    ) : (
+                      <option value="secretario">Secretário</option>
+                    )}
                   </select>
                 </div>
 
@@ -236,7 +253,7 @@ const UserManagement = () => {
                 />
               </div>
 
-              {formData.role === 'medico' && (
+              {formData.role === 'medico' && canManageMedicos && (
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="crmv">CRMV</label>
@@ -264,7 +281,7 @@ const UserManagement = () => {
                 </div>
               )}
 
-              {formData.role === 'administrador' && (
+              {(formData.role === 'administrador' || formData.role === 'secretario') && (
                 <div className="form-group">
                   <label htmlFor="nivelAcesso">Nível de Acesso</label>
                   <select
