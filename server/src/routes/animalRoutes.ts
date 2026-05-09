@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { getAnimals, registerAnimal } from "../controllers/animalController";
+import { getAnimals, getAllAnimals, registerAnimal } from "../controllers/animalController";
 
 const router = Router();
 
+router.get("/", getAllAnimals);
 router.get("/:clienteId", getAnimals);
 router.post("/", registerAnimal);
 

@@ -1,4 +1,4 @@
-import { dbGet, dbRun } from "../config/db";
+import { dbGet, dbRun, dbAll } from "../config/db";
 import { hashPassword } from "../utils/password";
 
 export type UserRole = "cliente" | "medico" | "administrador" | "secretario";
@@ -49,7 +49,7 @@ export function toPublic(user: User): UserPublic {
 }
 
 export async function findUserByEmail(email: string): Promise<User | undefined> {
-  return await dbGet("SELECT * FROM users WHERE email = ?", [email]) as User | undefined;
+  return await dbGet("SELECT * FROM users WHERE email = ?", [email.trim().toLowerCase()]) as User | undefined;
 }
 
 export async function findAllUsers(): Promise<User[]> {
@@ -112,15 +112,17 @@ export async function deleteUser(id: number): Promise<boolean> {
 
 export async function createUser(user: UserBase): Promise<User> {
   const createdAt = new Date().toISOString();
+  const normalizedEmail = user.email.trim().toLowerCase();
   const result = await dbRun(
     `INSERT INTO users (nome, email, senha, role, telefone, endereco, crmv, especialidade, nivelAcesso, createdAt)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [user.nome, user.email, hashPassword(user.senha), user.role, user.telefone ?? null, user.endereco ?? null, user.crmv ?? null, user.especialidade ?? null, user.nivelAcesso ?? null, createdAt]
+    [user.nome, normalizedEmail, hashPassword(user.senha), user.role, user.telefone ?? null, user.endereco ?? null, user.crmv ?? null, user.especialidade ?? null, user.nivelAcesso ?? null, createdAt]
   );
 
   return {
     id: result.lastID,
     ...user,
+    email: normalizedEmail,
     senha: hashPassword(user.senha),
     createdAt,
   };

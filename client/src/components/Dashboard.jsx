@@ -2,6 +2,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import AnimalForm from './AnimalForm';
 import UserManagement from './UserManagement';
+import AppointmentForm from './AppointmentForm';
+import AppointmentList from './AppointmentList';
 import axios from '../services/api';
 import './Dashboard.css';
 
@@ -9,6 +11,8 @@ const Dashboard = () => {
   const { user, logout } = useAuth();
   const [showAnimalForm, setShowAnimalForm] = useState(false);
   const [showUserManagement, setShowUserManagement] = useState(false);
+  const [showAppointmentForm, setShowAppointmentForm] = useState(false);
+  const [showAppointmentList, setShowAppointmentList] = useState(false);
   const [animais, setAnimais] = useState([]);
   const [loadingAnimais, setLoadingAnimais] = useState(false);
 
@@ -87,14 +91,14 @@ const Dashboard = () => {
                 <p>Cadastrar e gerenciar secretários</p>
               </div>
 
-              <div className="feature-card">
-                <h3>📅 Agendamentos</h3>
-                <p>Gerenciar consultas e horários</p>
+              <div className="feature-card" onClick={() => setShowAppointmentForm(true)} style={{ cursor: 'pointer' }}>
+                <h3>📅 Agendar Consulta</h3>
+                <p>Agendar novas consultas veterinárias</p>
               </div>
 
-              <div className="feature-card">
-                <h3>📋 Consultas</h3>
-                <p>Visualizar e filtrar consultas</p>
+              <div className="feature-card" onClick={() => setShowAppointmentList(true)} style={{ cursor: 'pointer' }}>
+                <h3>📋 Gerenciar Consultas</h3>
+                <p>Visualizar, filtrar e alterar consultas</p>
               </div>
             </div>
           </div>
@@ -218,6 +222,22 @@ const Dashboard = () => {
           <div className="modal-content">
             <UserManagement />
             <button onClick={() => setShowUserManagement(false)} className="close-modal-button">×</button>
+          </div>
+        </div>
+      )}
+
+      {showAppointmentForm && (
+        <AppointmentForm
+          onClose={() => setShowAppointmentForm(false)}
+          onSuccess={() => setShowAppointmentForm(false)}
+        />
+      )}
+
+      {showAppointmentList && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <AppointmentList />
+            <button onClick={() => setShowAppointmentList(false)} className="close-modal-button">×</button>
           </div>
         </div>
       )}

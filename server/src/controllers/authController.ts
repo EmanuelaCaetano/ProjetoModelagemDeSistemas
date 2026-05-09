@@ -8,8 +8,10 @@ export async function login(req: Request, res: Response) {
     return res.status(400).json({ error: "E-mail e senha são obrigatórios." });
   }
 
+  const normalizedEmail = email.trim().toLowerCase();
+
   try {
-    const user = await findUserByEmail(email);
+    const user = await findUserByEmail(normalizedEmail);
     if (!user) {
       return res.status(401).json({ error: "Credenciais inválidas." });
     }
@@ -33,7 +35,10 @@ export async function register(req: Request, res: Response) {
   }
 
   try {
-    const existingUser = await findUserByEmail(body.email);
+    const normalizedEmail = body.email.trim().toLowerCase();
+    body.email = normalizedEmail;
+
+    const existingUser = await findUserByEmail(normalizedEmail);
     if (existingUser) {
       return res.status(409).json({ error: "Já existe um usuário cadastrado com este e-mail." });
     }

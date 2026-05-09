@@ -1,5 +1,15 @@
 import { Request, Response } from "express";
-import { createAnimal, findAnimalsByCliente, toPublic, AnimalBase } from "../models/animal";
+import { createAnimal, findAnimalsByCliente, findAllAnimals, toPublic, AnimalBase } from "../models/animal";
+
+export async function getAllAnimals(req: Request, res: Response) {
+  try {
+    const animals = await findAllAnimals();
+    return res.json(animals.map(toPublic));
+  } catch (error) {
+    console.error("Erro ao buscar animais:", error);
+    return res.status(500).json({ error: "Erro interno do servidor." });
+  }
+}
 
 export async function getAnimals(req: Request, res: Response) {
   const clienteId = parseInt(req.params.clienteId);

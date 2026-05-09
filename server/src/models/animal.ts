@@ -1,4 +1,4 @@
-import { dbGet, dbRun } from "../config/db";
+import { dbGet, dbRun, dbAll } from "../config/db";
 
 export interface AnimalBase {
   nome: string;
@@ -39,7 +39,11 @@ export function toPublic(animal: Animal): AnimalPublic {
 }
 
 export async function findAnimalsByCliente(clienteId: number): Promise<Animal[]> {
-  return await dbGet("SELECT * FROM animals WHERE clienteId = ?", [clienteId]) as Animal[];
+  return await dbAll("SELECT * FROM animals WHERE clienteId = ? ORDER BY nome", [clienteId]);
+}
+
+export async function findAllAnimals(): Promise<Animal[]> {
+  return await dbAll("SELECT * FROM animals ORDER BY nome");
 }
 
 export async function createAnimal(animal: AnimalBase): Promise<Animal> {
