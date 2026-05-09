@@ -1,0 +1,86 @@
+.agenda-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.agenda-container h1 {
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.date-selector {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.date-selector label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.date-selector input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.agenda-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.time-slot {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: #f9f9f9;
+  transition: background-color 0.2s;
+}
+
+.time-slot.free {
+  background-color: #e8f5e8;
+}
+
+.time-slot.occupied {
+  background-color: #ffebee;
+  border-color: #f44336;
+}
+
+.time {
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.appointment {
+  flex: 1;
+}
+
+.cliente {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 3px;
+}
+
+.detalhes {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 20px;
+  font-size: 1.2em;
+}
+
+.error {
+  color: red;
+}

@@ -1,4 +1,5 @@
 import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -55,10 +56,12 @@ const Dashboard = () => {
             </div>
 
             <div className="features-grid">
-              <div className="feature-card">
-                <h3>📅 Consultas</h3>
-                <p>Visualizar agenda e consultas do dia</p>
-              </div>
+              <Link to="/agenda" className="feature-card-link">
+                <div className="feature-card">
+                  <h3>📅 Consultas</h3>
+                  <p>Visualizar agenda e consultas do dia</p>
+                </div>
+              </Link>
 
               <div className="feature-card">
                 <h3>📋 Prontuários</h3>
