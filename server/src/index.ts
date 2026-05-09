@@ -1,8 +1,7 @@
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes";
-import animalRoutes from "./routes/animalRoutes";
-import appointmentRoutes from "./routes/appointmentRoutes";
+import petRoutes from "./routes/petRoutes";
 import "./config/db";
 
 const app = express();
@@ -14,8 +13,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/auth", authRoutes);
-app.use("/animals", animalRoutes);
-app.use("/appointments", appointmentRoutes);
+app.use("/pets", petRoutes);
 
 // Aguardar um pouco para garantir que o banco foi inicializado
 setTimeout(() => {
