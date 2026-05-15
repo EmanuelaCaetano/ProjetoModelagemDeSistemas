@@ -65,6 +65,7 @@ const Login = () => {
         </form>
 
         <div className="login-footer">
+          <p>Não tem conta? <a href="/register">Cadastre-se</a></p>
           <h3>Usuários de Teste:</h3>
           <div className="test-users">
             <div className="test-user">
@@ -72,6 +73,9 @@ const Login = () => {
             </div>
             <div className="test-user">
               <strong>Médico:</strong> medico@newpet.com / Medico@123
+            </div>
+            <div className="test-user">
+              <strong>Secretária:</strong> secretaria@newpet.com / Secretaria@123
             </div>
             <div className="test-user">
               <strong>Cliente:</strong> cliente@newpet.com / Cliente@123

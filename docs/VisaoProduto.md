@@ -70,6 +70,7 @@ Liste as principais necessidades de cada tipo de usuário.
 - Agendar consultas para clientes  
 - Consultar calendários médicos  
 - Realizar filtros de agenda e atendimento  
+- Acessar um painel administrativo com controle de consultas e secretários  
 
 ---
 

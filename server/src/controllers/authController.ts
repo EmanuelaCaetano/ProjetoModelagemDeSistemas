@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createUser, findUserByEmail, toPublic, UserBase } from "../models/user";
+import { createUser, findUserByEmail, toPublic, UserBase, findAllUsers, updateUser, deleteUser } from "../models/user";
 import { hashPassword } from "../utils/password";
 
 export async function login(req: Request, res: Response) {
@@ -8,8 +8,10 @@ export async function login(req: Request, res: Response) {
     return res.status(400).json({ error: "E-mail e senha são obrigatórios." });
   }
 
+  const normalizedEmail = email.trim().toLowerCase();
+
   try {
-    const user = await findUserByEmail(email);
+    const user = await findUserByEmail(normalizedEmail);
     if (!user) {
       return res.status(401).json({ error: "Credenciais inválidas." });
     }
@@ -33,7 +35,10 @@ export async function register(req: Request, res: Response) {
   }
 
   try {
-    const existingUser = await findUserByEmail(body.email);
+    const normalizedEmail = body.email.trim().toLowerCase();
+    body.email = normalizedEmail;
+
+    const existingUser = await findUserByEmail(normalizedEmail);
     if (existingUser) {
       return res.status(409).json({ error: "Já existe um usuário cadastrado com este e-mail." });
     }
@@ -42,6 +47,47 @@ export async function register(req: Request, res: Response) {
     return res.status(201).json({ message: "Usuário cadastrado com sucesso.", usuario: toPublic(user) });
   } catch (error) {
     console.error("Erro no registro:", error);
+    return res.status(500).json({ error: "Erro interno do servidor." });
+  }
+}
+
+export async function getUsers(req: Request, res: Response) {
+  try {
+    const users = await findAllUsers();
+    return res.json(users.map(toPublic));
+  } catch (error) {
+    console.error("Erro ao buscar usuários:", error);
+    return res.status(500).json({ error: "Erro interno do servidor." });
+  }
+}
+
+export async function updateUserController(req: Request, res: Response) {
+  const { id } = req.params;
+  const userData = req.body as Partial<UserBase>;
+
+  try {
+    const user = await updateUser(parseInt(id), userData);
+    if (!user) {
+      return res.status(404).json({ error: "Usuário não encontrado." });
+    }
+    return res.json({ message: "Usuário atualizado com sucesso.", usuario: toPublic(user) });
+  } catch (error) {
+    console.error("Erro ao atualizar usuário:", error);
+    return res.status(500).json({ error: "Erro interno do servidor." });
+  }
+}
+
+export async function deleteUserController(req: Request, res: Response) {
+  const { id } = req.params;
+
+  try {
+    const deleted = await deleteUser(parseInt(id));
+    if (!deleted) {
+      return res.status(404).json({ error: "Usuário não encontrado." });
+    }
+    return res.json({ message: "Usuário removido com sucesso." });
+  } catch (error) {
+    console.error("Erro ao remover usuário:", error);
     return res.status(500).json({ error: "Erro interno do servidor." });
   }
 }
