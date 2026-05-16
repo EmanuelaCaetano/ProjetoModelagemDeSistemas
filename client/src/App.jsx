@@ -1,8 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './components/Login';
+import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import Agenda from './components/Agenda';
+import ClientDashboard from './components/ClientDashboard';
 import './App.css';
 
 // Componente para proteger rotas
@@ -31,6 +33,8 @@ const ProtectedRoute = ({ children }) => {
 const AppContent = () => {
   const { user } = useAuth();
 
+  const DashboardComponent = user?.tipoUsuario === 'cliente' ? ClientDashboard : Dashboard;
+
   return (
     <Router>
       <div className="app">
@@ -40,10 +44,22 @@ const AppContent = () => {
             element={user ? <Navigate to="/dashboard" /> : <Login />}
           />
           <Route
+            path="/register"
+            element={user ? <Navigate to="/dashboard" /> : <Register />}
+          />
+          <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <DashboardComponent />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/client"
+            element={
+              <ProtectedRoute>
+                <ClientDashboard />
               </ProtectedRoute>
             }
           />
