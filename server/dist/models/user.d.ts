@@ -1,4 +1,4 @@
-export type UserRole = "cliente" | "medico" | "administrador";
+export type UserRole = "cliente" | "medico" | "administrador" | "secretario";
 export interface UserBase {
     nome: string;
     email: string;
@@ -28,5 +28,8 @@ export interface UserPublic {
 }
 export declare function toPublic(user: User): UserPublic;
 export declare function findUserByEmail(email: string): Promise<User | undefined>;
+export declare function findAllUsers(): Promise<User[]>;
+export declare function updateUser(id: number, userData: Partial<UserBase>): Promise<User | undefined>;
+export declare function deleteUser(id: number): Promise<boolean>;
 export declare function createUser(user: UserBase): Promise<User>;
 //# sourceMappingURL=user.d.ts.map
