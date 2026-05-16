@@ -5,10 +5,12 @@ exports.createAppointment = createAppointment;
 exports.findAppointmentById = findAppointmentById;
 exports.findAppointmentsByCliente = findAppointmentsByCliente;
 exports.findAppointmentsByMedico = findAppointmentsByMedico;
+exports.findAppointmentByMedicoAndDate = findAppointmentByMedicoAndDate;
 exports.findAllAppointments = findAllAppointments;
 exports.updateAppointment = updateAppointment;
 exports.deleteAppointment = deleteAppointment;
 exports.getAppointmentsWithDetails = getAppointmentsWithDetails;
+exports.getAppointmentsWithDetailsByCliente = getAppointmentsWithDetailsByCliente;
 const db_1 = require("../config/db");
 function toPublic(appointment) {
     return {
@@ -47,6 +49,13 @@ async function findAppointmentsByCliente(clienteId) {
 }
 async function findAppointmentsByMedico(medicoId) {
     return await (0, db_1.dbAll)("SELECT * FROM appointments WHERE medicoId = ? ORDER BY dataHora DESC", [medicoId]);
+}
+async function findAppointmentByMedicoAndDate(medicoId, dataHora, excludeId) {
+    const query = excludeId
+        ? "SELECT * FROM appointments WHERE medicoId = ? AND dataHora = ? AND id != ? AND status != 'cancelada'"
+        : "SELECT * FROM appointments WHERE medicoId = ? AND dataHora = ? AND status != 'cancelada'";
+    const params = excludeId ? [medicoId, dataHora, excludeId] : [medicoId, dataHora];
+    return await (0, db_1.dbGet)(query, params);
 }
 async function findAllAppointments() {
     return await (0, db_1.dbAll)("SELECT * FROM appointments ORDER BY dataHora DESC");
@@ -102,6 +111,48 @@ async function getAppointmentsWithDetails() {
     JOIN users m ON a.medicoId = m.id
     ORDER BY a.dataHora DESC
   `);
+    return appointments.map(app => ({
+        id: app.id,
+        animalId: app.animalId,
+        clienteId: app.clienteId,
+        medicoId: app.medicoId,
+        dataHora: app.dataHora,
+        status: app.status,
+        observacoes: app.observacoes,
+        createdAt: app.createdAt,
+        updatedAt: app.updatedAt,
+        animal: {
+            id: app.animalId,
+            nome: app.animal_nome,
+            especie: app.especie,
+            raca: app.raca,
+        },
+        cliente: {
+            id: app.clienteId,
+            nome: app.cliente_nome,
+            email: app.cliente_email,
+        },
+        medico: {
+            id: app.medicoId,
+            nome: app.medico_nome,
+            especialidade: app.especialidade,
+        },
+    }));
+}
+async function getAppointmentsWithDetailsByCliente(clienteId) {
+    const appointments = await (0, db_1.dbAll)(`
+    SELECT 
+      a.*,
+      an.nome as animal_nome, an.especie, an.raca,
+      c.nome as cliente_nome, c.email as cliente_email,
+      m.nome as medico_nome, m.especialidade
+    FROM appointments a
+    JOIN animals an ON a.animalId = an.id
+    JOIN users c ON a.clienteId = c.id
+    JOIN users m ON a.medicoId = m.id
+    WHERE a.clienteId = ?
+    ORDER BY a.dataHora DESC
+  `, [clienteId]);
     return appointments.map(app => ({
         id: app.id,
         animalId: app.animalId,

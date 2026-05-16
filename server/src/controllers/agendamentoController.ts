@@ -1,9 +1,11 @@
-import { Request, Response } from 'express';
-import { mockAgendamentos, Agendamento } from '../models/agendamento';
+import type { Request, Response } from 'express';
+import { mockAgendamentos } from '../models/agendamento';
+import type { Agendamento } from '../models/agendamento';
 
 export const getAgendamentos = async (req: Request, res: Response) => {
   try {
-    const { data, medicoId } = req.query;
+    const data = Array.isArray(req.query.data) ? req.query.data[0] : req.query.data;
+    const medicoId = Array.isArray(req.query.medicoId) ? req.query.medicoId[0] : req.query.medicoId;
 
     let agendamentos = mockAgendamentos;
 
@@ -14,7 +16,7 @@ export const getAgendamentos = async (req: Request, res: Response) => {
 
     // Filtrar por médico se fornecido
     if (medicoId) {
-      agendamentos = agendamentos.filter(ag => ag.medicoId === parseInt(medicoId as string));
+      agendamentos = agendamentos.filter(ag => ag.medicoId === parseInt(medicoId));
     }
 
     // Formatar para o formato esperado pelo frontend

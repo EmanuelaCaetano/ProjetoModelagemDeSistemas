@@ -1,5 +1,6 @@
-import { Request, Response } from "express";
-import { createAnimal, findAnimalsByCliente, findAllAnimals, toPublic, AnimalBase } from "../models/animal";
+import type { Request, Response } from "express";
+import { createAnimal, findAnimalsByCliente, findAllAnimals, toPublic } from "../models/animal";
+import type { AnimalBase } from "../models/animal";
 
 export async function getAllAnimals(req: Request, res: Response) {
   try {

@@ -3,24 +3,35 @@ import { useAuth } from '../contexts/AuthContext';
 import axios from '../services/api';
 import './AppointmentForm.css';
 
-const AppointmentForm = ({ onClose, onSuccess }) => {
+const AppointmentForm = ({ appointment = null, mode = 'create', onClose, onSuccess }) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
-    animalId: '',
-    clienteId: user?.tipoUsuario === 'cliente' ? user.id : '',
-    medicoId: '',
-    dataHora: '',
-    observacoes: ''
+    animalId: appointment?.animalId || '',
+    clienteId: appointment?.clienteId || (user?.tipoUsuario === 'cliente' ? user.id : ''),
+    medicoId: appointment?.medicoId || '',
+    dataHora: appointment?.dataHora || '',
+    observacoes: appointment?.observacoes || ''
   });
   const [animais, setAnimais] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [medicos, setMedicos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    setFormData({
+      animalId: appointment?.animalId || '',
+      clienteId: appointment?.clienteId || (user?.tipoUsuario === 'cliente' ? user.id : ''),
+      medicoId: appointment?.medicoId || '',
+      dataHora: appointment?.dataHora || '',
+      observacoes: appointment?.observacoes || ''
+    });
+  }, [appointment, user]);
 
   const fetchData = async () => {
     try {
@@ -50,10 +61,20 @@ const AppointmentForm = ({ onClose, onSuccess }) => {
   };
 
   const handleInputChange = (e) => {
-    setFormData({
+    const { name, value } = e.target;
+    let updatedFormData = {
       ...formData,
-      [e.target.name]: e.target.value
-    });
+      [name]: value
+    };
+
+    if (name === 'clienteId') {
+      const animal = animais.find(a => a.id == updatedFormData.animalId);
+      if (animal && animal.clienteId != value) {
+        updatedFormData.animalId = '';
+      }
+    }
+
+    setFormData(updatedFormData);
   };
 
   const handleAnimalChange = (e) => {
@@ -68,9 +89,14 @@ const AppointmentForm = ({ onClose, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
 
+    if (mode === 'edit') {
+      setShowConfirm(true);
+      return;
+    }
+
+    setLoading(true);
     try {
       await axios.post('/appointments', formData);
       onSuccess && onSuccess();
@@ -81,11 +107,30 @@ const AppointmentForm = ({ onClose, onSuccess }) => {
     setLoading(false);
   };
 
+  const handleConfirmSubmit = async () => {
+    setShowConfirm(false);
+    setLoading(true);
+    setError('');
+
+    try {
+      await axios.put(`/appointments/${appointment.id}`, formData);
+      onSuccess && onSuccess();
+      onClose && onClose();
+    } catch (error) {
+      setError(error.response?.data?.error || 'Erro ao atualizar consulta');
+    }
+    setLoading(false);
+  };
+
+  const animalsToShow = user?.tipoUsuario !== 'cliente' && formData.clienteId
+    ? animais.filter(animal => animal.clienteId == formData.clienteId)
+    : animais;
+
   return (
     <div className="appointment-form-overlay">
       <div className="appointment-form">
         <div className="form-header">
-          <h2>📅 Agendar Consulta</h2>
+          <h2>{mode === 'edit' ? '✏️ Editar Consulta' : '📅 Agendar Consulta'}</h2>
           <button onClick={onClose} className="close-button">×</button>
         </div>
 
@@ -100,7 +145,7 @@ const AppointmentForm = ({ onClose, onSuccess }) => {
               required
             >
               <option value="">Selecione um animal</option>
-              {animais.map(animal => (
+              {animalsToShow.map(animal => (
                 <option key={animal.id} value={animal.id}>
                   {animal.nome} ({animal.especie})
                 </option>
@@ -177,10 +222,27 @@ const AppointmentForm = ({ onClose, onSuccess }) => {
               Cancelar
             </button>
             <button type="submit" disabled={loading} className="submit-button">
-              {loading ? 'Agendando...' : 'Agendar Consulta'}
+              {loading ? (mode === 'edit' ? 'Salvando...' : 'Agendando...') : (mode === 'edit' ? 'Salvar Alterações' : 'Agendar Consulta')}
             </button>
           </div>
         </form>
+
+        {showConfirm && (
+          <div className="confirm-modal-overlay">
+            <div className="confirm-modal">
+              <h3>Confirmar edição</h3>
+              <p>Deseja salvar as alterações nesta consulta? Isso atualizará a agenda de todos os usuários.</p>
+              <div className="confirm-actions">
+                <button type="button" onClick={() => setShowConfirm(false)} className="cancel-button">
+                  Voltar
+                </button>
+                <button type="button" onClick={handleConfirmSubmit} className="submit-button">
+                  Confirmar edição
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

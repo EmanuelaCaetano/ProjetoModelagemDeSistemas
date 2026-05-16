@@ -1,5 +1,6 @@
-import { Request, Response } from "express";
-import { createUser, findUserByEmail, toPublic, UserBase, findAllUsers, updateUser, deleteUser } from "../models/user";
+import type { Request, Response } from "express";
+import { createUser, findUserByEmail, toPublic, findAllUsers, updateUser, deleteUser } from "../models/user";
+import type { UserBase } from "../models/user";
 import { hashPassword } from "../utils/password";
 
 export async function login(req: Request, res: Response) {

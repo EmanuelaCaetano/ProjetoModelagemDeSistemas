@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import PetList from './PetList';
+import ClientAppointments from './ClientAppointments';
 import './ClientDashboard.css';
 
 const ClientDashboard = () => {
@@ -115,10 +116,7 @@ const ClientDashboard = () => {
         {activeTab === 'consultas' && (
           <div className="tab-pane consultas-tab">
             <h2>📅 Minhas Consultas</h2>
-            <div className="placeholder-content">
-              <p>💬 Funcionalidade de consultas em desenvolvimento</p>
-              <p>Em breve você poderá agendar e gerenciar suas consultas aqui!</p>
-            </div>
+            <ClientAppointments />
           </div>
         )}
 

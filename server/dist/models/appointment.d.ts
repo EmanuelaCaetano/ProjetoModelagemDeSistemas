@@ -44,8 +44,10 @@ export declare function createAppointment(appointmentData: AppointmentBase): Pro
 export declare function findAppointmentById(id: number): Promise<Appointment | null>;
 export declare function findAppointmentsByCliente(clienteId: number): Promise<Appointment[]>;
 export declare function findAppointmentsByMedico(medicoId: number): Promise<Appointment[]>;
+export declare function findAppointmentByMedicoAndDate(medicoId: number, dataHora: string, excludeId?: number): Promise<Appointment | null>;
 export declare function findAllAppointments(): Promise<Appointment[]>;
 export declare function updateAppointment(id: number, appointmentData: Partial<AppointmentBase>): Promise<Appointment | null>;
 export declare function deleteAppointment(id: number): Promise<boolean>;
 export declare function getAppointmentsWithDetails(): Promise<AppointmentPublic[]>;
+export declare function getAppointmentsWithDetailsByCliente(clienteId: number): Promise<AppointmentPublic[]>;
 //# sourceMappingURL=appointment.d.ts.map

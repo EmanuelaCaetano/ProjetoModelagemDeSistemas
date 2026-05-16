@@ -8,6 +8,7 @@ const cors_1 = __importDefault(require("cors"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 const agendamentoRoutes_1 = __importDefault(require("./routes/agendamentoRoutes"));
 const petRoutes_1 = __importDefault(require("./routes/petRoutes"));
+const appointmentRoutes_1 = __importDefault(require("./routes/appointmentRoutes"));
 require("./config/db");
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -18,6 +19,7 @@ app.get("/", (_req, res) => {
 app.use("/auth", authRoutes_1.default);
 app.use("/agendamentos", agendamentoRoutes_1.default);
 app.use("/pets", petRoutes_1.default);
+app.use("/appointments", appointmentRoutes_1.default);
 // Aguardar um pouco para garantir que o banco foi inicializado
 setTimeout(() => {
     const port = Number(process.env.PORT || 4000);

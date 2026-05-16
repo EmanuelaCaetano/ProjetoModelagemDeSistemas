@@ -1,13 +1,15 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import {
   createAppointment,
   findAppointmentById,
+  findAppointmentByMedicoAndDate,
   findAllAppointments,
   updateAppointment,
   deleteAppointment,
   getAppointmentsWithDetails,
-  AppointmentBase
+  getAppointmentsWithDetailsByCliente
 } from "../models/appointment";
+import type { AppointmentBase } from "../models/appointment";
 
 export async function createAppointmentController(req: Request, res: Response) {
   const body = req.body as AppointmentBase;
@@ -17,6 +19,11 @@ export async function createAppointmentController(req: Request, res: Response) {
   }
 
   try {
+    const conflict = await findAppointmentByMedicoAndDate(body.medicoId, body.dataHora);
+    if (conflict) {
+      return res.status(409).json({ error: "Horário indisponível para este médico." });
+    }
+
     const appointment = await createAppointment(body);
     return res.status(201).json({ message: "Consulta agendada com sucesso.", consulta: appointment });
   } catch (error) {
@@ -50,12 +57,39 @@ export async function getAppointmentByIdController(req: Request, res: Response) 
   }
 }
 
+export async function getAppointmentsByClienteController(req: Request, res: Response) {
+  const { clienteId } = req.params;
+
+  try {
+    const appointments = await getAppointmentsWithDetailsByCliente(parseInt(clienteId));
+    return res.json(appointments);
+  } catch (error) {
+    console.error("Erro ao buscar consultas do cliente:", error);
+    return res.status(500).json({ error: "Erro interno do servidor." });
+  }
+}
+
 export async function updateAppointmentController(req: Request, res: Response) {
   const { id } = req.params;
   const appointmentData = req.body as Partial<AppointmentBase>;
 
   try {
-    const appointment = await updateAppointment(parseInt(id), appointmentData);
+    const appointmentId = parseInt(id);
+    const existingAppointment = await findAppointmentById(appointmentId);
+    if (!existingAppointment) {
+      return res.status(404).json({ error: "Consulta não encontrada." });
+    }
+
+    const targetMedicoId = appointmentData.medicoId ?? existingAppointment.medicoId;
+    const targetDataHora = appointmentData.dataHora ?? existingAppointment.dataHora;
+    if (appointmentData.medicoId || appointmentData.dataHora) {
+      const conflict = await findAppointmentByMedicoAndDate(targetMedicoId, targetDataHora, appointmentId);
+      if (conflict) {
+        return res.status(409).json({ error: "Horário indisponível para este médico." });
+      }
+    }
+
+    const appointment = await updateAppointment(appointmentId, appointmentData);
     if (!appointment) {
       return res.status(404).json({ error: "Consulta não encontrada." });
     }

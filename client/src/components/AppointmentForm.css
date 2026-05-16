@@ -126,7 +126,7 @@
   color: white;
 }
 
-.submit-button:hover:not(:disabled) {
+..submit-button:hover:not(:disabled) {
   background: #2563eb;
 }
 
@@ -142,4 +142,36 @@
   padding: 0.75rem;
   border-radius: 6px;
   margin-top: 0.5rem;
+}
+
+.confirm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+.confirm-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e5e7eb;
+}
+
+.confirm-modal h3 {
+  margin-top: 0;
+  color: #111827;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
 }

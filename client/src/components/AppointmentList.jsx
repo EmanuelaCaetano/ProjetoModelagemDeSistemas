@@ -62,14 +62,16 @@ const AppointmentList = () => {
     });
   };
 
-  const filteredAppointments = appointments.filter(appointment => {
-    if (filter.status && appointment.status !== filter.status) return false;
-    if (filter.medicoId && appointment.medicoId != filter.medicoId) return false;
-    if (filter.clienteId && appointment.clienteId != filter.clienteId) return false;
-    if (filter.dataInicio && appointment.dataHora < filter.dataInicio) return false;
-    if (filter.dataFim && appointment.dataHora > filter.dataFim) return false;
-    return true;
-  });
+  const filteredAppointments = appointments
+    .filter(appointment => {
+      if (filter.status && appointment.status !== filter.status) return false;
+      if (filter.medicoId && appointment.medicoId != filter.medicoId) return false;
+      if (filter.clienteId && appointment.clienteId != filter.clienteId) return false;
+      if (filter.dataInicio && appointment.dataHora < filter.dataInicio) return false;
+      if (filter.dataFim && appointment.dataHora > filter.dataFim) return false;
+      return true;
+    })
+    .sort((a, b) => new Date(a.dataHora) - new Date(b.dataHora));
 
   const handleStatusChange = async (appointmentId, newStatus) => {
     try {
@@ -89,6 +91,11 @@ const AppointmentList = () => {
         console.error('Erro ao cancelar consulta:', error);
       }
     }
+  };
+
+  const handleEdit = (appointment) => {
+    setEditingAppointment(appointment);
+    setShowForm(true);
   };
 
   const getStatusColor = (status) => {
@@ -120,7 +127,13 @@ const AppointmentList = () => {
       <div className="list-header">
         <h2>📋 Gerenciamento de Consultas</h2>
         {(user?.tipoUsuario === 'secretario' || user?.tipoUsuario === 'administrador') && (
-          <button onClick={() => setShowForm(true)} className="add-button">
+          <button
+            onClick={() => {
+              setEditingAppointment(null);
+              setShowForm(true);
+            }}
+            className="add-button"
+          >
             + Nova Consulta
           </button>
         )}
@@ -216,7 +229,7 @@ const AppointmentList = () => {
 
               {(user?.tipoUsuario === 'secretario' || user?.tipoUsuario === 'administrador') && (
                 <div className="appointment-actions">
-                  {appointment.status === 'agendada' && (
+                      {appointment.status === 'agendada' && (
                     <button
                       onClick={() => handleStatusChange(appointment.id, 'confirmada')}
                       className="confirm-button"
@@ -224,6 +237,12 @@ const AppointmentList = () => {
                       Confirmar
                     </button>
                   )}
+                  <button
+                    onClick={() => handleEdit(appointment)}
+                    className="edit-button"
+                  >
+                    Editar
+                  </button>
                   {appointment.status !== 'cancelada' && appointment.status !== 'concluida' && (
                     <button
                       onClick={() => handleDelete(appointment.id)}
@@ -241,8 +260,17 @@ const AppointmentList = () => {
 
       {showForm && (
         <AppointmentForm
-          onClose={() => setShowForm(false)}
-          onSuccess={fetchAppointments}
+          appointment={editingAppointment}
+          mode={editingAppointment ? 'edit' : 'create'}
+          onClose={() => {
+            setShowForm(false);
+            setEditingAppointment(null);
+          }}
+          onSuccess={() => {
+            fetchAppointments();
+            setShowForm(false);
+            setEditingAppointment(null);
+          }}
         />
       )}
     </div>

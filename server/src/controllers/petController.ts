@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import * as petModel from "../models/pet";
 
 export async function createPet(req: Request, res: Response) {

@@ -1,4 +1,5 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { Router } from "express";
+import type { Request, Response, NextFunction } from "express";
 import * as petController from "../controllers/petController";
 import * as userModel from "../models/user";
 import { comparePassword } from "../utils/password";
