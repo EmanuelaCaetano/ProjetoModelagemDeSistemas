@@ -1,0 +1,71 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  cliente
+  medico
+  administrador
+  secretario
+}
+
+enum ScheduleStatus {
+  scheduled
+  cancelled
+  completed
+}
+
+model User {
+  id                Int        @id @default(autoincrement())
+  nome              String
+  email             String     @unique
+  senha             String
+  role              Role
+  telefone          String?
+  endereco          String?
+  crmv              String?
+  especialidade     String?
+  nivelAcesso       String?
+  createdAt         DateTime   @default(now())
+  pets              Pet[]      @relation("ClientPets")
+  clientSchedules   Schedule[] @relation("ClientSchedules")
+  vetSchedules      Schedule[] @relation("VeterinarianSchedules")
+}
+
+model Pet {
+  id             Int      @id @default(autoincrement())
+  nome           String
+  especie        String
+  raca           String?
+  idade          Float?
+  peso           Float?
+  dataNascimento DateTime?
+  clienteId      Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
+  cliente        User     @relation("ClientPets", fields: [clienteId], references: [id])
+  schedules      Schedule[]
+}
+
+model Schedule {
+  id             String         @id @default(uuid())
+  clientId       Int
+  petId          Int
+  veterinarianId Int
+  date           DateTime
+  status         ScheduleStatus @default(scheduled)
+  notes          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  client         User           @relation("ClientSchedules", fields: [clientId], references: [id])
+  pet            Pet            @relation(fields: [petId], references: [id])
+  veterinarian   User           @relation("VeterinarianSchedules", fields: [veterinarianId], references: [id])
+
+  @@unique([veterinarianId, date])
+}

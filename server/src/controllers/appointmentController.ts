@@ -36,10 +36,11 @@ export async function getAppointmentsController(req: Request, res: Response) {
 }
 
 export async function getAppointmentByIdController(req: Request, res: Response) {
-  const { id } = req.params;
+  const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = idParam ? parseInt(idParam, 10) : NaN;
 
   try {
-    const appointment = await findAppointmentById(parseInt(id));
+    const appointment = await findAppointmentById(id);
     if (!appointment) {
       return res.status(404).json({ error: "Consulta não encontrada." });
     }
@@ -51,11 +52,12 @@ export async function getAppointmentByIdController(req: Request, res: Response) 
 }
 
 export async function updateAppointmentController(req: Request, res: Response) {
-  const { id } = req.params;
+  const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = idParam ? parseInt(idParam, 10) : NaN;
   const appointmentData = req.body as Partial<AppointmentBase>;
 
   try {
-    const appointment = await updateAppointment(parseInt(id), appointmentData);
+    const appointment = await updateAppointment(id, appointmentData);
     if (!appointment) {
       return res.status(404).json({ error: "Consulta não encontrada." });
     }
@@ -67,10 +69,11 @@ export async function updateAppointmentController(req: Request, res: Response) {
 }
 
 export async function deleteAppointmentController(req: Request, res: Response) {
-  const { id } = req.params;
+  const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = idParam ? parseInt(idParam, 10) : NaN;
 
   try {
-    const deleted = await deleteAppointment(parseInt(id));
+    const deleted = await deleteAppointment(id);
     if (!deleted) {
       return res.status(404).json({ error: "Consulta não encontrada." });
     }

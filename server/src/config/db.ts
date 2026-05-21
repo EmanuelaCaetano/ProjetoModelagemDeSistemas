@@ -90,6 +90,28 @@ db.serialize(async () => {
       );
     `);
 
+    await dbRun(`
+      CREATE TABLE IF NOT EXISTS schedules (
+        id TEXT PRIMARY KEY,
+        clientId INTEGER NOT NULL,
+        petId INTEGER NOT NULL,
+        veterinarianId INTEGER NOT NULL,
+        date TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'scheduled' CHECK(status IN ('scheduled','cancelled','completed')),
+        notes TEXT,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        FOREIGN KEY (clientId) REFERENCES users(id),
+        FOREIGN KEY (petId) REFERENCES animals(id),
+        FOREIGN KEY (veterinarianId) REFERENCES users(id)
+      );
+    `);
+
+    await dbRun(`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_schedules_veterinarian_date
+      ON schedules(veterinarianId, date);
+    `);
+
     const existingUsersTable = await dbGet("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'users'");
     if (existingUsersTable && typeof existingUsersTable.sql === 'string' && !existingUsersTable.sql.includes("'secretario'")) {
       console.log('Migração: atualizando schema da tabela users para aceitar role secretario.');

@@ -4,6 +4,9 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import ClientDashboard from './components/ClientDashboard';
+import SecretarySchedulePage from './pages/schedules/secretary/SecretarySchedulePage';
+import ClientSchedulePage from './pages/schedules/client/ClientSchedulePage';
+import AdminSchedulesPage from './pages/schedules/admin/AdminSchedulesPage';
 import './App.css';
 
 // Componente para proteger rotas
@@ -34,6 +37,20 @@ const AppContent = () => {
 
   const DashboardComponent = user?.tipoUsuario === 'cliente' ? ClientDashboard : Dashboard;
 
+  const SchedulesPage = () => {
+    if (!user) return <Navigate to="/login" />;
+    switch (user.tipoUsuario) {
+      case 'secretario':
+        return <SecretarySchedulePage />;
+      case 'administrador':
+        return <AdminSchedulesPage />;
+      case 'cliente':
+        return <ClientSchedulePage />;
+      default:
+        return <DashboardComponent />;
+    }
+  };
+
   return (
     <Router>
       <div className="app">
@@ -51,6 +68,22 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <DashboardComponent />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/schedules"
+            element={
+              <ProtectedRoute>
+                <SchedulesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/schedules/my"
+            element={
+              <ProtectedRoute>
+                <ClientSchedulePage />
               </ProtectedRoute>
             }
           />
