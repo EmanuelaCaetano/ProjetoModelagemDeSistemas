@@ -31,7 +31,11 @@ export const AuthProvider = ({ children }) => {
         senha
       });
 
-      const userData = response.data.usuario;
+      const userData = {
+        ...response.data.usuario,
+        token: response.data.token,
+      };
+
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
 
@@ -47,7 +51,13 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await axios.post('/auth/register', userData);
-      return { success: true, user: response.data.usuario };
+      const newUser = {
+        ...response.data.usuario,
+        token: response.data.token,
+      };
+      setUser(newUser);
+      localStorage.setItem('user', JSON.stringify(newUser));
+      return { success: true, user: newUser };
     } catch (error) {
       return {
         success: false,

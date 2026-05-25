@@ -50,10 +50,11 @@ export async function listMyPets(req: Request, res: Response) {
 
 export async function getPetById(req: Request, res: Response) {
   try {
-    const { id } = req.params;
+    const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = idParam ? parseInt(idParam, 10) : NaN;
     const clienteId = (req as any).userId;
 
-    const pet = await petModel.findPetById(parseInt(id));
+    const pet = await petModel.findPetById(id);
 
     if (!pet) {
       return res.status(404).json({ error: "Pet não encontrado" });
@@ -72,11 +73,12 @@ export async function getPetById(req: Request, res: Response) {
 
 export async function updatePet(req: Request, res: Response) {
   try {
-    const { id } = req.params;
+    const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = idParam ? parseInt(idParam, 10) : NaN;
     const { nome, especie, raca, idade, peso, dataNascimento } = req.body;
     const clienteId = (req as any).userId;
 
-    const pet = await petModel.findPetById(parseInt(id));
+    const pet = await petModel.findPetById(id);
 
     if (!pet) {
       return res.status(404).json({ error: "Pet não encontrado" });
@@ -95,7 +97,7 @@ export async function updatePet(req: Request, res: Response) {
     if (peso !== undefined) updates.peso = parseFloat(peso);
     if (dataNascimento !== undefined) updates.dataNascimento = dataNascimento;
 
-    const updatedPet = await petModel.updatePet(parseInt(id), updates);
+    const updatedPet = await petModel.updatePet(id, updates);
 
     res.json({
       message: "Pet atualizado com sucesso",
@@ -108,10 +110,11 @@ export async function updatePet(req: Request, res: Response) {
 
 export async function deletePet(req: Request, res: Response) {
   try {
-    const { id } = req.params;
+    const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = idParam ? parseInt(idParam, 10) : NaN;
     const clienteId = (req as any).userId;
 
-    const pet = await petModel.findPetById(parseInt(id));
+    const pet = await petModel.findPetById(id);
 
     if (!pet) {
       return res.status(404).json({ error: "Pet não encontrado" });
@@ -122,7 +125,7 @@ export async function deletePet(req: Request, res: Response) {
       return res.status(403).json({ error: "Acesso negado" });
     }
 
-    const success = await petModel.deletePet(parseInt(id));
+    const success = await petModel.deletePet(id);
 
     if (success) {
       res.json({ message: "Pet deletado com sucesso" });

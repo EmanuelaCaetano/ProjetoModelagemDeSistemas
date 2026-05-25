@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import PetList from './PetList';
 import './ClientDashboard.css';
 
 const ClientDashboard = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 
   const handleLogout = () => {
@@ -76,13 +78,13 @@ const ClientDashboard = () => {
                 <p>Visualizar e gerenciar seus animais de estimação</p>
               </div>
 
-              <div className="action-card" onClick={() => setActiveTab('consultas')}>
+              <div className="action-card" onClick={() => navigate('/schedules')}>
                 <div className="action-icon">📅</div>
                 <h3>Agendar Consulta</h3>
                 <p>Marcar uma consulta com nossos veterinários</p>
               </div>
 
-              <div className="action-card" onClick={() => setActiveTab('consultas')}>
+              <div className="action-card" onClick={() => navigate('/schedules')}>
                 <div className="action-icon">📋</div>
                 <h3>Minhas Consultas</h3>
                 <p>Visualizar consultas agendadas e histórico</p>

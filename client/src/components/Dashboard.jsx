@@ -1,5 +1,6 @@
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AnimalForm from './AnimalForm';
 import UserManagement from './UserManagement';
 import AppointmentForm from './AppointmentForm';
@@ -9,6 +10,7 @@ import './Dashboard.css';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [showAnimalForm, setShowAnimalForm] = useState(false);
   const [showUserManagement, setShowUserManagement] = useState(false);
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
@@ -91,12 +93,12 @@ const Dashboard = () => {
                 <p>Cadastrar e gerenciar secretários</p>
               </div>
 
-              <div className="feature-card" onClick={() => setShowAppointmentForm(true)} style={{ cursor: 'pointer' }}>
+              <div className="feature-card" onClick={() => navigate('/schedules')} style={{ cursor: 'pointer' }}>
                 <h3>📅 Agendar Consulta</h3>
                 <p>Agendar novas consultas veterinárias</p>
               </div>
 
-              <div className="feature-card" onClick={() => setShowAppointmentList(true)} style={{ cursor: 'pointer' }}>
+              <div className="feature-card" onClick={() => navigate('/schedules')} style={{ cursor: 'pointer' }}>
                 <h3>📋 Gerenciar Consultas</h3>
                 <p>Visualizar, filtrar e alterar consultas</p>
               </div>

@@ -12,7 +12,8 @@ export async function getAllAnimals(req: Request, res: Response) {
 }
 
 export async function getAnimals(req: Request, res: Response) {
-  const clienteId = parseInt(req.params.clienteId);
+  const clienteIdParam = Array.isArray(req.params.clienteId) ? req.params.clienteId[0] : req.params.clienteId;
+  const clienteId = clienteIdParam ? parseInt(clienteIdParam, 10) : NaN;
   if (!clienteId) {
     return res.status(400).json({ error: "ID do cliente é obrigatório." });
   }

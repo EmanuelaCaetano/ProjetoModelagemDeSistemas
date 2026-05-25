@@ -13,6 +13,7 @@ export interface AppointmentBase {
 
 export interface Appointment extends AppointmentBase {
   id: number;
+  status: AppointmentStatus;
   createdAt: string;
   updatedAt: string;
 }

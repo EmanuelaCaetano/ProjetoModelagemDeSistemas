@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { createUser, findUserByEmail, toPublic, UserBase, findAllUsers, updateUser, deleteUser } from "../models/user";
 import { hashPassword } from "../utils/password";
+import { signToken } from "../utils/jwt";
 
 export async function login(req: Request, res: Response) {
   const { email, senha } = req.body as { email?: string; senha?: string };
@@ -20,7 +21,13 @@ export async function login(req: Request, res: Response) {
       return res.status(401).json({ error: "Credenciais inválidas." });
     }
 
-    return res.json({ message: "Login realizado com sucesso.", usuario: toPublic(user) });
+    const token = signToken({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    return res.json({ message: "Login realizado com sucesso.", usuario: toPublic(user), token });
   } catch (error) {
     console.error("Erro no login:", error);
     return res.status(500).json({ error: "Erro interno do servidor." });
@@ -44,7 +51,13 @@ export async function register(req: Request, res: Response) {
     }
 
     const user = await createUser(body);
-    return res.status(201).json({ message: "Usuário cadastrado com sucesso.", usuario: toPublic(user) });
+    const token = signToken({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    return res.status(201).json({ message: "Usuário cadastrado com sucesso.", usuario: toPublic(user), token });
   } catch (error) {
     console.error("Erro no registro:", error);
     return res.status(500).json({ error: "Erro interno do servidor." });
@@ -62,11 +75,12 @@ export async function getUsers(req: Request, res: Response) {
 }
 
 export async function updateUserController(req: Request, res: Response) {
-  const { id } = req.params;
+  const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = idParam ? parseInt(idParam, 10) : NaN;
   const userData = req.body as Partial<UserBase>;
 
   try {
-    const user = await updateUser(parseInt(id), userData);
+    const user = await updateUser(id, userData);
     if (!user) {
       return res.status(404).json({ error: "Usuário não encontrado." });
     }
@@ -78,10 +92,11 @@ export async function updateUserController(req: Request, res: Response) {
 }
 
 export async function deleteUserController(req: Request, res: Response) {
-  const { id } = req.params;
+  const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = idParam ? parseInt(idParam, 10) : NaN;
 
   try {
-    const deleted = await deleteUser(parseInt(id));
+    const deleted = await deleteUser(id);
     if (!deleted) {
       return res.status(404).json({ error: "Usuário não encontrado." });
     }
