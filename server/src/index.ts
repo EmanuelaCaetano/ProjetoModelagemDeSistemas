@@ -3,6 +3,7 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes";
 import petRoutes from "./routes/petRoutes";
 import scheduleRoutes from "./modules/schedules/routes/schedule.routes";
+import chatbotRoutes from "./modules/chatbot/routes/chatbotRoutes";
 import "./config/db";
 
 const app = express();
@@ -16,6 +17,7 @@ app.get("/", (_req, res) => {
 app.use("/auth", authRoutes);
 app.use("/pets", petRoutes);
 app.use("/schedules", scheduleRoutes);
+app.use("/chat", chatbotRoutes);
 
 // Aguardar um pouco para garantir que o banco foi inicializado
 setTimeout(() => {

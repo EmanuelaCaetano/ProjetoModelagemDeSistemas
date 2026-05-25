@@ -7,25 +7,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum Role {
-  cliente
-  medico
-  administrador
-  secretario
-}
-
-enum ScheduleStatus {
-  scheduled
-  cancelled
-  completed
-}
-
 model User {
   id                Int        @id @default(autoincrement())
   nome              String
   email             String     @unique
   senha             String
-  role              Role
+  role              String     @default("cliente")
   telefone          String?
   endereco          String?
   crmv              String?
@@ -35,6 +22,7 @@ model User {
   pets              Pet[]      @relation("ClientPets")
   clientSchedules   Schedule[] @relation("ClientSchedules")
   vetSchedules      Schedule[] @relation("VeterinarianSchedules")
+  chatMessages      ChatMessage[]
 }
 
 model Pet {
@@ -53,19 +41,32 @@ model Pet {
 }
 
 model Schedule {
-  id             String         @id @default(uuid())
+  id             String   @id @default(uuid())
   clientId       Int
   petId          Int
   veterinarianId Int
   date           DateTime
-  status         ScheduleStatus @default(scheduled)
+  status         String   @default("scheduled")
   notes          String?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  client         User           @relation("ClientSchedules", fields: [clientId], references: [id])
-  pet            Pet            @relation(fields: [petId], references: [id])
-  veterinarian   User           @relation("VeterinarianSchedules", fields: [veterinarianId], references: [id])
+  client         User     @relation("ClientSchedules", fields: [clientId], references: [id])
+  pet            Pet      @relation(fields: [petId], references: [id])
+  veterinarian   User     @relation("VeterinarianSchedules", fields: [veterinarianId], references: [id])
 
   @@unique([veterinarianId, date])
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  userId    Int
+  role      String   @default("user")
+  message   String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 }
