@@ -90,6 +90,12 @@ const ClientDashboard = () => {
                 <p>Visualizar consultas agendadas e histórico</p>
               </div>
 
+              <div className="action-card" onClick={() => navigate('/chat')}>
+                <div className="action-icon">💬</div>
+                <h3>Assistente IA</h3>
+                <p>Chat inteligente para ajudar com seus agendamentos</p>
+              </div>
+
               <div className="action-card" onClick={() => setActiveTab('perfil')}>
                 <div className="action-icon">👤</div>
                 <h3>Meu Perfil</h3>

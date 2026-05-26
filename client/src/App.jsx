@@ -7,6 +7,8 @@ import ClientDashboard from './components/ClientDashboard';
 import SecretarySchedulePage from './pages/schedules/secretary/SecretarySchedulePage';
 import ClientSchedulePage from './pages/schedules/client/ClientSchedulePage';
 import AdminSchedulesPage from './pages/schedules/admin/AdminSchedulesPage';
+import { ClientChatPage } from './pages/ClientChatPage';
+import { AdminChatPage } from './pages/AdminChatPage';
 import './App.css';
 
 // Componente para proteger rotas
@@ -92,6 +94,22 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <ClientDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <ClientChatPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat/admin"
+            element={
+              <ProtectedRoute>
+                <AdminChatPage />
               </ProtectedRoute>
             }
           />

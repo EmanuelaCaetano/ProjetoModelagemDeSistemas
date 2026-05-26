@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ChatWindow } from '../../components/chatbot';
+import { ChatWindow } from '../components/chatbot/ChatWindow';
 
 interface ClientChatPageProps {
   apiUrl?: string;

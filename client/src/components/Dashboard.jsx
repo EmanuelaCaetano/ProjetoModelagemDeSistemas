@@ -66,6 +66,11 @@ const Dashboard = () => {
                 <p>Cadastrar médicos, secretários e gerenciar permissões</p>
               </div>
 
+              <div className="feature-card" onClick={() => navigate('/chat/admin')} style={{ cursor: 'pointer' }}>
+                <h3>💬 Assistente IA</h3>
+                <p>Chat inteligente para análise de dados e estatísticas</p>
+              </div>
+
               <div className="feature-card">
                 <h3>📊 Relatórios</h3>
                 <p>Visualizar estatísticas e relatórios da clínica</p>

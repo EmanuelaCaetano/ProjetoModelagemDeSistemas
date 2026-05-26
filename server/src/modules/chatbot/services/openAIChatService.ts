@@ -3,12 +3,26 @@ import { PrismaClient } from "@prisma/client";
 import { ConversationContext, UserRole, ChatToolDefinition } from "../types";
 import { clientChatService } from "./clientChatService";
 import { adminChatService } from "./adminChatService";
+import { mockChatService } from "./mockChatService";
 
 const prisma = new PrismaClient();
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Verifica se há chave OpenAI configurada
+const hasOpenAIKey = !!process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== "";
+
+// Inicializa OpenAI apenas se houver chave
+let openai: OpenAI | null = null;
+if (hasOpenAIKey) {
+  try {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+    console.log("✅ OpenAI API inicializado com sucesso");
+  } catch (error) {
+    console.warn("⚠️ Erro ao inicializar OpenAI, usando Mock Service:", error);
+    openai = null;
+  }
+}
 
 export class OpenAIChatService {
   /**
@@ -24,6 +38,17 @@ export class OpenAIChatService {
     toolsUsed: string[];
     conversationHistory: Array<{ role: string; content: string }>;
   }> {
+    // Se não houver OpenAI, usa o Mock Service
+    if (!openai) {
+      console.log("📢 Usando Mock Chat Service (sem OpenAI API Key)");
+      return mockChatService.processMessage(
+        userId,
+        userMessage,
+        userRole,
+        conversationHistory
+      );
+    }
+
     try {
       // Obtém o contexto da conversa
       const context = await this.buildConversationContext(userId, userRole);
