@@ -10,6 +10,11 @@ export async function fetchMySchedules() {
   return response.data;
 }
 
+export async function bookSchedule(payload) {
+  const response = await axios.post('/schedules/book', payload);
+  return response.data;
+}
+
 export async function createSchedule(payload) {
   const response = await axios.post('/schedules', payload);
   return response.data;

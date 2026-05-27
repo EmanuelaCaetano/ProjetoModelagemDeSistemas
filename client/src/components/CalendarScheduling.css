@@ -1,0 +1,560 @@
+/* Container principal */
+.calendar-scheduling-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  background: var(--color-white);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+}
+
+.calendar-scheduling-container h2 {
+  color: var(--color-black);
+  margin-bottom: 25px;
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+/* Alertas */
+.alert {
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border-left: 4px solid;
+  animation: slideIn 0.3s ease-out;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Layout de duas colunas */
+.scheduling-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+/* Seção de calendário */
+.calendar-section {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.calendar-section h3 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+/* Estilos do react-calendar */
+.react-calendar {
+  width: 100%;
+  background: white;
+  border: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.react-calendar__month-view__days__day {
+  padding: 12px;
+  font-size: 14px;
+}
+
+.react-calendar__tile {
+  padding: 12px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.react-calendar__tile:hover {
+  background-color: #e3f2fd;
+}
+
+.react-calendar__tile--active {
+  background: var(--color-primary-green) !important;
+  color: var(--color-white) !important;
+}
+
+.react-calendar__tile--now {
+  background-color: var(--color-primary-orange-light);
+  color: var(--color-primary-orange-dark);
+  font-weight: bold;
+}
+
+.react-calendar__tile.available-day {
+  background-color: var(--color-primary-green-light);
+  color: var(--color-primary-green-dark);
+  cursor: pointer;
+}
+
+.react-calendar__tile.available-day:hover {
+  background-color: #bbf7d0;
+}
+
+.react-calendar__tile.today {
+  background-color: var(--color-primary-orange-light);
+  color: var(--color-primary-orange-dark);
+  font-weight: bold;
+}
+
+.react-calendar__tile.unavailable-day {
+  background-color: #f5f5f5;
+  color: #9e9e9e;
+  cursor: not-allowed;
+}
+
+.react-calendar__tile.unavailable-day:hover {
+  background-color: #f5f5f5;
+}
+
+/* Legenda do calendário */
+.calendar-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #e0e0e0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+.legend-color.available {
+  background-color: #e8f5e9;
+  border: 2px solid #2e7d32;
+}
+
+.legend-color.unavailable {
+  background-color: #f5f5f5;
+  border: 2px solid #9e9e9e;
+}
+
+.legend-color.today {
+  background-color: #fff176;
+  border: 2px solid #f57c00;
+}
+
+/* Seção de detalhes */
+.details-section {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.details-section h3 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+/* Formulário de agendamento */
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.selected-date {
+  background-color: var(--color-primary-green-light);
+  color: var(--color-primary-green-dark);
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* Grupos de formulário */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.form-select {
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: var(--color-primary-green);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+}
+
+.text-muted {
+  color: #475569;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.text-muted a {
+  color: var(--color-primary-orange-dark);
+  text-decoration: underline;
+}
+
+/* Lista de veterinários */
+.veterinarians-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.vet-card {
+  padding: 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.vet-card:hover {
+  border-color: var(--color-primary-green);
+  background-color: #ecfdf5;
+  transform: translateX(2px);
+}
+
+.vet-card.selected {
+  border-color: var(--color-primary-green);
+  background-color: var(--color-primary-green-light);
+}
+
+.vet-name {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.vet-specialty {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.vet-availability {
+  font-size: 13px;
+  color: #4caf50;
+  font-weight: 500;
+}
+
+/* Grid de horários */
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.time-slot {
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  text-align: center;
+}
+
+.time-slot:hover {
+  border-color: #2196f3;
+  background-color: #e3f2fd;
+  transform: scale(1.05);
+}
+
+.time-slot.selected {
+  border-color: #4caf50;
+  background-color: #c8e6c9;
+  color: #1b5e20;
+}
+
+/* Ações do formulário */
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.form-actions .btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 14px 20px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.btn-primary:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-secondary {
+  background: var(--gradient-secondary);
+  color: white;
+  padding: 14px 20px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+}
+
+.btn-lg {
+  padding: 14px 20px;
+  font-size: 16px;
+}
+
+/* Estado vazio */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+  border-radius: 8px;
+  color: #999;
+  font-size: 18px;
+}
+
+/* Seção de próximas consultas */
+.upcoming-schedules-section {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.upcoming-schedules-section h3 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+/* Grid de agendamentos */
+.schedules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.schedule-card {
+  background: var(--color-white);
+  color: var(--color-black);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #d1fae5;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.12);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.schedule-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.16);
+}
+
+.schedule-date {
+  font-size: 16px;
+  font-weight: 700;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.schedule-pet,
+.schedule-vet {
+  font-size: 14px;
+  opacity: 0.95;
+}
+
+.schedule-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn-sm {
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-danger {
+  background-color: transparent;
+  color: white;
+  border: 1px solid white;
+}
+
+.btn-outline-danger:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .calendar-scheduling-container {
+    padding: 15px;
+  }
+
+  .calendar-scheduling-container h2 {
+    font-size: 22px;
+    margin-bottom: 15px;
+  }
+
+  .scheduling-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .calendar-section,
+  .details-section {
+    padding: 15px;
+  }
+
+  .details-section {
+    max-height: none;
+  }
+
+  .time-slots-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 8px;
+  }
+
+  .schedules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .react-calendar__tile {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .veterinarians-list {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-scheduling-container {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .calendar-scheduling-container h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .calendar-section,
+  .details-section,
+  .upcoming-schedules-section {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .react-calendar__tile {
+    padding: 6px;
+    font-size: 10px;
+  }
+
+  .legend-item {
+    font-size: 12px;
+  }
+
+  .form-select,
+  .time-slot {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .schedules-grid {
+    gap: 15px;
+  }
+
+  .schedule-card {
+    padding: 15px;
+  }
+
+  .schedule-date {
+    font-size: 14px;
+  }
+
+  .schedule-pet,
+  .schedule-vet {
+    font-size: 13px;
+  }
+}

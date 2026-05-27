@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import { createUser, findUserByEmail, toPublic, UserBase, findAllUsers, updateUser, deleteUser } from "../models/user";
+import { createUser, findUserByEmail, toPublic, UserBase, findAllUsers, updateUser, deleteUser, findUserById } from "../models/user";
 import { hashPassword } from "../utils/password";
 import { signToken } from "../utils/jwt";
+import { AuthRequest } from "../middlewares/auth";
 
 export async function login(req: Request, res: Response) {
   const { email, senha } = req.body as { email?: string; senha?: string };
@@ -104,5 +105,89 @@ export async function deleteUserController(req: Request, res: Response) {
   } catch (error) {
     console.error("Erro ao remover usuário:", error);
     return res.status(500).json({ error: "Erro interno do servidor." });
+  }
+}
+
+export async function updateProfileController(req: AuthRequest, res: Response) {
+  if (!req.userId) {
+    return res.status(401).json({ error: "Usuário não autenticado." });
+  }
+
+  const { nome, email, telefone, endereco } = req.body;
+
+  try {
+    // Validar email se for fornecido
+    if (email) {
+      const normalizedEmail = email.trim().toLowerCase();
+      const existingUser = await findUserByEmail(normalizedEmail);
+      if (existingUser && existingUser.id !== req.userId) {
+        return res.status(409).json({ error: "Este e-mail já está em uso." });
+      }
+    }
+
+    const updatedUser = await updateUser(req.userId, {
+      nome,
+      email: email ? email.trim().toLowerCase() : undefined,
+      telefone,
+      endereco
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "Usuário não encontrado." });
+    }
+
+    return res.json({
+      message: "Perfil atualizado com sucesso.",
+      usuario: toPublic(updatedUser)
+    });
+  } catch (error) {
+    console.error("Erro ao atualizar perfil:", error);
+    return res.status(500).json({ error: "Erro ao atualizar perfil." });
+  }
+}
+
+export async function changePasswordController(req: AuthRequest, res: Response) {
+  if (!req.userId) {
+    return res.status(401).json({ error: "Usuário não autenticado." });
+  }
+
+  const { senhaAtual, senhaNova } = req.body;
+
+  if (!senhaAtual || !senhaNova) {
+    return res.status(400).json({ error: "Senha atual e nova são obrigatórias." });
+  }
+
+  if (senhaNova.length < 6) {
+    return res.status(400).json({ error: "Senha deve ter pelo menos 6 caracteres." });
+  }
+
+  try {
+    const user = await findUserById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: "Usuário não encontrado." });
+    }
+
+    // Verificar senha atual
+    const hashedCurrentPassword = hashPassword(senhaAtual);
+    if (user.senha !== hashedCurrentPassword) {
+      return res.status(401).json({ error: "Senha atual incorreta." });
+    }
+
+    // Atualizar para nova senha
+    const updatedUser = await updateUser(req.userId, {
+      senha: senhaNova
+    });
+
+    if (!updatedUser) {
+      return res.status(500).json({ error: "Erro ao alterar senha." });
+    }
+
+    return res.json({
+      message: "Senha alterada com sucesso.",
+      usuario: toPublic(updatedUser)
+    });
+  } catch (error) {
+    console.error("Erro ao alterar senha:", error);
+    return res.status(500).json({ error: "Erro ao alterar senha." });
   }
 }
