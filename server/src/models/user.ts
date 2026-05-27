@@ -56,6 +56,10 @@ export async function findAllUsers(): Promise<User[]> {
   return await dbAll("SELECT * FROM users ORDER BY createdAt DESC") as User[];
 }
 
+export async function findUserById(id: number): Promise<User | undefined> {
+  return await dbGet("SELECT * FROM users WHERE id = ?", [id]) as User | undefined;
+}
+
 export async function updateUser(id: number, userData: Partial<UserBase>): Promise<User | undefined> {
   const fields = [];
   const values = [];

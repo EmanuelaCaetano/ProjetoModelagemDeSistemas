@@ -2,16 +2,16 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #333;
+  background: var(--color-gray-50);
+  color: var(--color-gray-800);
 }
 
 /* Header */
 .dashboard-header {
   background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   padding: 20px 0;
-  border-bottom: 4px solid #667eea;
+  border-bottom: 4px solid var(--color-primary-green);
 }
 
 .header-content {
@@ -40,7 +40,8 @@
 
 .welcome {
   font-size: 16px;
-  color: #555;
+  color: #2c3e50;
+  font-weight: 500;
 }
 
 /* Tabs Navigation */
@@ -60,24 +61,25 @@
 .tab-button {
   padding: 10px 20px;
   border: none;
-  background: #f0f0f0;
-  color: #667eea;
+  background: var(--color-white);
+  color: var(--color-primary-green-dark);
   cursor: pointer;
   border-radius: 6px;
   font-weight: 500;
   transition: all 0.3s ease;
   font-size: 14px;
+  border: 1px solid var(--color-gray-200);
 }
 
 .tab-button:hover {
-  background: #e0e0e0;
+  background: var(--color-gray-100);
   transform: translateY(-2px);
 }
 
 .tab-button.active {
-  background: #667eea;
-  color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  background: var(--color-primary-green);
+  color: var(--color-white);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 /* Tabs Content */
@@ -106,7 +108,7 @@
 
 /* Visão Geral Tab */
 .overview-tab .welcome-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   padding: 30px;
   border-radius: 8px;
@@ -160,15 +162,16 @@
 }
 
 .action-card p {
-  color: #666;
+  color: #2c3e50;
   margin: 0;
   font-size: 14px;
+  font-weight: 500;
 }
 
 /* Info Section */
 .info-section {
-  background: #f9f9f9;
-  border-left: 4px solid #667eea;
+  background: #ffffff;
+  border-left: 4px solid var(--color-primary-orange);
   padding: 20px;
   border-radius: 4px;
   margin-top: 30px;
@@ -181,7 +184,8 @@
 
 .info-section p {
   margin: 8px 0;
-  color: #555;
+  color: #2c3e50;
+  font-weight: 500;
 }
 
 /* Placeholder Content */
@@ -193,9 +197,10 @@
 }
 
 .placeholder-content p {
-  color: #999;
+  color: #2c3e50;
   font-size: 16px;
   margin: 10px 0;
+  font-weight: 500;
 }
 
 /* Profile Tab */
@@ -226,8 +231,9 @@
 
 .profile-field p {
   margin: 0;
-  color: #333;
+  color: #2c3e50;
   font-size: 16px;
+  font-weight: 500;
 }
 
 .profile-actions {
@@ -236,13 +242,14 @@
 }
 
 .info-text {
-  color: #999;
+  color: #2c3e50;
   font-size: 14px;
+  font-weight: 500;
 }
 
 /* Footer */
 .dashboard-footer {
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--color-primary-green);
   color: white;
   text-align: center;
   padding: 20px;

@@ -4,6 +4,7 @@ exports.scheduleMiddlewares = void 0;
 exports.createScheduleController = createScheduleController;
 exports.listSchedulesController = listSchedulesController;
 exports.listMySchedulesController = listMySchedulesController;
+exports.listSchedulesByDateController = listSchedulesByDateController;
 exports.getScheduleController = getScheduleController;
 exports.updateScheduleController = updateScheduleController;
 exports.cancelScheduleController = cancelScheduleController;
@@ -42,6 +43,20 @@ async function listMySchedulesController(req, res) {
     }
     catch (error) {
         return res.status(500).json({ error: "Erro ao buscar suas consultas." });
+    }
+}
+async function listSchedulesByDateController(req, res) {
+    const dateParam = Array.isArray(req.query.date) ? req.query.date[0] : req.query.date;
+    const dateString = typeof dateParam === 'string' ? dateParam : '';
+    if (!dateString || isNaN(Date.parse(dateString))) {
+        return res.status(400).json({ error: "Data inválida." });
+    }
+    try {
+        const schedules = await (0, schedule_service_1.findSchedulesByDate)(dateString);
+        return res.json(schedules);
+    }
+    catch (error) {
+        return res.status(500).json({ error: "Erro ao buscar agendamentos para a data." });
     }
 }
 async function getScheduleController(req, res) {

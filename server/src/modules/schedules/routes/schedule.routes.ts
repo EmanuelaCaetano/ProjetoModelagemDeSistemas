@@ -4,6 +4,7 @@ import {
   createScheduleController,
   getScheduleController,
   listMySchedulesController,
+  listSchedulesByDateController,
   listSchedulesController,
   updateScheduleController,
   scheduleMiddlewares,
@@ -11,6 +12,14 @@ import {
 import { validateSchedulePayload } from "../middlewares/validateSchedule.middleware";
 
 const router = Router();
+
+// Rota para clientes agendarem consultas diretamente
+router.post(
+  "/book",
+  scheduleMiddlewares.authenticateJWT,
+  validateSchedulePayload,
+  createScheduleController
+);
 
 router.post(
   "/",
@@ -20,6 +29,7 @@ router.post(
   createScheduleController
 );
 router.get("/", scheduleMiddlewares.authenticateJWT, scheduleMiddlewares.authorizeSecretaryOrAdmin, listSchedulesController);
+router.get("/date", scheduleMiddlewares.authenticateJWT, listSchedulesByDateController);
 router.get("/my", scheduleMiddlewares.authenticateJWT, listMySchedulesController);
 router.get("/:id", scheduleMiddlewares.authenticateJWT, getScheduleController);
 router.put(

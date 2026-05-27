@@ -5,6 +5,7 @@ import {
   cancelSchedule,
   createSchedule,
   findAllSchedules,
+  findSchedulesByDate,
   findScheduleById,
   findSchedulesByClient,
   updateSchedule,
@@ -15,12 +16,18 @@ import { UpdateScheduleDto } from "../dtos/updateSchedule.dto";
 export async function createScheduleController(req: AuthRequest, res: Response) {
   try {
     const data = req.body as CreateScheduleDto;
+    const clientId = data.clientId || req.userId;
 
-    if (!data.clientId || !data.petId || !data.veterinarianId || !data.date) {
+    if (!clientId || !data.petId || !data.veterinarianId || !data.date) {
       return res.status(400).json({ error: "clientId, petId, veterinarianId e date são obrigatórios." });
     }
 
-    const schedule = await createSchedule(data);
+    const scheduleData = {
+      ...data,
+      clientId,
+    };
+
+    const schedule = await createSchedule(scheduleData);
     return res.status(201).json({ message: "Consulta criada com sucesso.", schedule });
   } catch (error) {
     return res.status(400).json({ error: error instanceof Error ? error.message : "Erro ao criar consulta." });
@@ -46,6 +53,21 @@ export async function listMySchedulesController(req: AuthRequest, res: Response)
     return res.json(schedules);
   } catch (error) {
     return res.status(500).json({ error: "Erro ao buscar suas consultas." });
+  }
+}
+
+export async function listSchedulesByDateController(req: AuthRequest, res: Response) {
+  const dateParam = Array.isArray(req.query.date) ? req.query.date[0] : req.query.date;
+  const dateString = typeof dateParam === 'string' ? dateParam : '';
+  if (!dateString || isNaN(Date.parse(dateString))) {
+    return res.status(400).json({ error: "Data inválida." });
+  }
+
+  try {
+    const schedules = await findSchedulesByDate(dateString);
+    return res.json(schedules);
+  } catch (error) {
+    return res.status(500).json({ error: "Erro ao buscar agendamentos para a data." });
   }
 }
 

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import PetList from './PetList';
+import CalendarScheduling from './CalendarScheduling';
+import EditableProfile from './EditableProfile';
 import './ClientDashboard.css';
 
 const ClientDashboard = () => {
@@ -39,6 +41,12 @@ const ClientDashboard = () => {
           📊 Visão Geral
         </button>
         <button
+          className={`tab-button ${activeTab === 'calendario' ? 'active' : ''}`}
+          onClick={() => setActiveTab('calendario')}
+        >
+          📅 Calendário
+        </button>
+        <button
           className={`tab-button ${activeTab === 'pets' ? 'active' : ''}`}
           onClick={() => setActiveTab('pets')}
         >
@@ -48,7 +56,7 @@ const ClientDashboard = () => {
           className={`tab-button ${activeTab === 'consultas' ? 'active' : ''}`}
           onClick={() => setActiveTab('consultas')}
         >
-          📅 Minhas Consultas
+          📋 Minhas Consultas
         </button>
         <button
           className={`tab-button ${activeTab === 'perfil' ? 'active' : ''}`}
@@ -78,13 +86,13 @@ const ClientDashboard = () => {
                 <p>Visualizar e gerenciar seus animais de estimação</p>
               </div>
 
-              <div className="action-card" onClick={() => navigate('/schedules')}>
+              <div className="action-card" onClick={() => setActiveTab('calendario')}>
                 <div className="action-icon">📅</div>
                 <h3>Agendar Consulta</h3>
                 <p>Marcar uma consulta com nossos veterinários</p>
               </div>
 
-              <div className="action-card" onClick={() => navigate('/schedules')}>
+              <div className="action-card" onClick={() => setActiveTab('calendario')}>
                 <div className="action-icon">📋</div>
                 <h3>Minhas Consultas</h3>
                 <p>Visualizar consultas agendadas e histórico</p>
@@ -103,6 +111,13 @@ const ClientDashboard = () => {
               <p>Email: contato@newpet.com</p>
               <p>Endereço: Av. Paulista, 1000</p>
             </div>
+          </div>
+        )}
+
+        {/* Calendário */}
+        {activeTab === 'calendario' && (
+          <div className="tab-pane">
+            <CalendarScheduling />
           </div>
         )}
 
@@ -127,32 +142,7 @@ const ClientDashboard = () => {
         {/* Perfil */}
         {activeTab === 'perfil' && (
           <div className="tab-pane perfil-tab">
-            <h2>👤 Meu Perfil</h2>
-            <div className="profile-card">
-              <div className="profile-field">
-                <label>Nome</label>
-                <p>{user.nome}</p>
-              </div>
-              <div className="profile-field">
-                <label>Email</label>
-                <p>{user.email}</p>
-              </div>
-              {user.telefone && (
-                <div className="profile-field">
-                  <label>Telefone</label>
-                  <p>{user.telefone}</p>
-                </div>
-              )}
-              {user.endereco && (
-                <div className="profile-field">
-                  <label>Endereço</label>
-                  <p>{user.endereco}</p>
-                </div>
-              )}
-              <div className="profile-actions">
-                <p className="info-text">ℹ️ Recursos de edição em desenvolvimento</p>
-              </div>
-            </div>
+            <EditableProfile />
           </div>
         )}
       </div>

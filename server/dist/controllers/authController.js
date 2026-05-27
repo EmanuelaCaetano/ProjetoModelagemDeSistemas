@@ -5,6 +5,8 @@ exports.register = register;
 exports.getUsers = getUsers;
 exports.updateUserController = updateUserController;
 exports.deleteUserController = deleteUserController;
+exports.updateProfileController = updateProfileController;
+exports.changePasswordController = changePasswordController;
 const user_1 = require("../models/user");
 const password_1 = require("../utils/password");
 const jwt_1 = require("../utils/jwt");
@@ -98,6 +100,77 @@ async function deleteUserController(req, res) {
     catch (error) {
         console.error("Erro ao remover usuário:", error);
         return res.status(500).json({ error: "Erro interno do servidor." });
+    }
+}
+async function updateProfileController(req, res) {
+    if (!req.userId) {
+        return res.status(401).json({ error: "Usuário não autenticado." });
+    }
+    const { nome, email, telefone, endereco } = req.body;
+    try {
+        // Validar email se for fornecido
+        if (email) {
+            const normalizedEmail = email.trim().toLowerCase();
+            const existingUser = await (0, user_1.findUserByEmail)(normalizedEmail);
+            if (existingUser && existingUser.id !== req.userId) {
+                return res.status(409).json({ error: "Este e-mail já está em uso." });
+            }
+        }
+        const updatedUser = await (0, user_1.updateUser)(req.userId, {
+            nome,
+            email: email ? email.trim().toLowerCase() : undefined,
+            telefone,
+            endereco
+        });
+        if (!updatedUser) {
+            return res.status(404).json({ error: "Usuário não encontrado." });
+        }
+        return res.json({
+            message: "Perfil atualizado com sucesso.",
+            usuario: (0, user_1.toPublic)(updatedUser)
+        });
+    }
+    catch (error) {
+        console.error("Erro ao atualizar perfil:", error);
+        return res.status(500).json({ error: "Erro ao atualizar perfil." });
+    }
+}
+async function changePasswordController(req, res) {
+    if (!req.userId) {
+        return res.status(401).json({ error: "Usuário não autenticado." });
+    }
+    const { senhaAtual, senhaNova } = req.body;
+    if (!senhaAtual || !senhaNova) {
+        return res.status(400).json({ error: "Senha atual e nova são obrigatórias." });
+    }
+    if (senhaNova.length < 6) {
+        return res.status(400).json({ error: "Senha deve ter pelo menos 6 caracteres." });
+    }
+    try {
+        const user = await (0, user_1.findUserById)(req.userId);
+        if (!user) {
+            return res.status(404).json({ error: "Usuário não encontrado." });
+        }
+        // Verificar senha atual
+        const hashedCurrentPassword = (0, password_1.hashPassword)(senhaAtual);
+        if (user.senha !== hashedCurrentPassword) {
+            return res.status(401).json({ error: "Senha atual incorreta." });
+        }
+        // Atualizar para nova senha
+        const updatedUser = await (0, user_1.updateUser)(req.userId, {
+            senha: senhaNova
+        });
+        if (!updatedUser) {
+            return res.status(500).json({ error: "Erro ao alterar senha." });
+        }
+        return res.json({
+            message: "Senha alterada com sucesso.",
+            usuario: (0, user_1.toPublic)(updatedUser)
+        });
+    }
+    catch (error) {
+        console.error("Erro ao alterar senha:", error);
+        return res.status(500).json({ error: "Erro ao alterar senha." });
     }
 }
 //# sourceMappingURL=authController.js.map

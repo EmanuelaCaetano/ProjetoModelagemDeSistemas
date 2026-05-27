@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.toPublic = toPublic;
 exports.findUserByEmail = findUserByEmail;
 exports.findAllUsers = findAllUsers;
+exports.findUserById = findUserById;
 exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
 exports.createUser = createUser;
@@ -27,6 +28,9 @@ async function findUserByEmail(email) {
 }
 async function findAllUsers() {
     return await (0, db_1.dbAll)("SELECT * FROM users ORDER BY createdAt DESC");
+}
+async function findUserById(id) {
+    return await (0, db_1.dbGet)("SELECT * FROM users WHERE id = ?", [id]);
 }
 async function updateUser(id, userData) {
     const fields = [];
