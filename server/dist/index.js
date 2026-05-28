@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 const petRoutes_1 = __importDefault(require("./routes/petRoutes"));
+const appointmentRoutes_1 = __importDefault(require("./routes/appointmentRoutes"));
 const schedule_routes_1 = __importDefault(require("./modules/schedules/routes/schedule.routes"));
 require("./config/db");
 const app = (0, express_1.default)();
@@ -17,6 +18,7 @@ app.get("/", (_req, res) => {
 });
 app.use("/auth", authRoutes_1.default);
 app.use("/pets", petRoutes_1.default);
+app.use("/appointments", appointmentRoutes_1.default);
 app.use("/schedules", schedule_routes_1.default);
 // Aguardar um pouco para garantir que o banco foi inicializado
 setTimeout(() => {

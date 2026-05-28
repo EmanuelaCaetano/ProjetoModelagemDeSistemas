@@ -203,7 +203,39 @@
   font-weight: 500;
 }
 
-/* Profile Tab */
+/* Minhas Consultas Table */
+.schedule-table-wrapper {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+.schedule-table th,
+.schedule-table td {
+  text-align: left;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.schedule-table th {
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 700;
+}
+
+.schedule-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.schedule-table td {
+  color: #475569;
+}
+
 .profile-card {
   background: #f9f9f9;
   padding: 30px;

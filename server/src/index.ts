@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes";
 import petRoutes from "./routes/petRoutes";
+import appointmentRoutes from "./routes/appointmentRoutes";
 import scheduleRoutes from "./modules/schedules/routes/schedule.routes";
 import "./config/db";
 
@@ -15,6 +16,7 @@ app.get("/", (_req, res) => {
 
 app.use("/auth", authRoutes);
 app.use("/pets", petRoutes);
+app.use("/appointments", appointmentRoutes);
 app.use("/schedules", scheduleRoutes);
 
 // Aguardar um pouco para garantir que o banco foi inicializado

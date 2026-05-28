@@ -5,6 +5,7 @@ import AnimalForm from './AnimalForm';
 import UserManagement from './UserManagement';
 import AppointmentForm from './AppointmentForm';
 import AppointmentList from './AppointmentList';
+import { fetchAllSchedules } from '../services/scheduleService';
 import axios from '../services/api';
 import './Dashboard.css';
 
@@ -15,6 +16,10 @@ const Dashboard = () => {
   const [showUserManagement, setShowUserManagement] = useState(false);
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
   const [showAppointmentList, setShowAppointmentList] = useState(false);
+  const [showReports, setShowReports] = useState(false);
+  const [reports, setReports] = useState([]);
+  const [loadingReports, setLoadingReports] = useState(false);
+  const [reportError, setReportError] = useState('');
   const [animais, setAnimais] = useState([]);
   const [loadingAnimais, setLoadingAnimais] = useState(false);
 
@@ -66,7 +71,20 @@ const Dashboard = () => {
                 <p>Cadastrar médicos, secretários e gerenciar permissões</p>
               </div>
 
-              <div className="feature-card">
+              <div className="feature-card" onClick={async () => {
+                setShowReports(true);
+                setLoadingReports(true);
+                setReportError('');
+                try {
+                  const data = await fetchAllSchedules();
+                  setReports(Array.isArray(data) ? data : []);
+                } catch (error) {
+                  console.error('Erro ao carregar relatórios:', error);
+                  setReportError('Não foi possível carregar os relatórios de consultas.');
+                } finally {
+                  setLoadingReports(false);
+                }
+              }} style={{ cursor: 'pointer' }}>
                 <h3>📊 Relatórios</h3>
                 <p>Visualizar estatísticas e relatórios da clínica</p>
               </div>
@@ -76,6 +94,50 @@ const Dashboard = () => {
                 <p>Configurar sistema e preferências</p>
               </div>
             </div>
+
+            {showReports && (
+              <div className="reports-section">
+                <div className="reports-header">
+                  <h3>📋 Relatório de Consultas</h3>
+                  <button className="btn btn-secondary" onClick={() => setShowReports(false)}>
+                    Fechar Relatórios
+                  </button>
+                </div>
+                {reportError && <div className="alert alert-error">{reportError}</div>}
+                {loadingReports ? (
+                  <div>Carregando relatórios...</div>
+                ) : reports.length === 0 ? (
+                  <div>Nenhuma consulta encontrada.</div>
+                ) : (
+                  <div className="report-table-wrapper">
+                    <table className="report-table">
+                      <thead>
+                        <tr>
+                          <th>Cliente</th>
+                          <th>Pet</th>
+                          <th>Médico</th>
+                          <th>Data / Horário</th>
+                          <th>Status</th>
+                          <th>Observações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reports.map((item) => (
+                          <tr key={item.id}>
+                            <td>{item.client?.nome || '-'}</td>
+                            <td>{item.pet?.nome || '-'}</td>
+                            <td>{item.veterinarian?.nome || '-'}</td>
+                            <td>{new Date(item.date).toLocaleString('pt-BR')}</td>
+                            <td>{item.status}</td>
+                            <td>{item.notes || '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         );
 

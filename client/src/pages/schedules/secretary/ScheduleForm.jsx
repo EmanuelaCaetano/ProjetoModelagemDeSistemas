@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const scheduleSchema = z.object({
-  clientId: z.string().min(1, 'Cliente é obrigatório.'),
   petId: z.string().min(1, 'Pet é obrigatório.'),
   veterinarianId: z.string().min(1, 'Médico é obrigatório.'),
   date: z.string().min(1, 'Data e horário são obrigatórios.'),
@@ -12,7 +11,6 @@ const scheduleSchema = z.object({
 });
 
 const defaultValues = {
-  clientId: '',
   petId: '',
   veterinarianId: '',
   date: '',
@@ -22,6 +20,7 @@ const defaultValues = {
 const ScheduleForm = ({ clients, pets, veterinarians, schedule, onSubmit, onClose }) => {
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
@@ -32,13 +31,16 @@ const ScheduleForm = ({ clients, pets, veterinarians, schedule, onSubmit, onClos
 
   useEffect(() => {
     reset({
-      clientId: schedule?.clientId?.toString() ?? '',
       petId: schedule?.petId?.toString() ?? '',
       veterinarianId: schedule?.veterinarianId?.toString() ?? '',
       date: schedule ? schedule.date.slice(0, 16) : '',
       notes: schedule?.notes ?? '',
     });
   }, [schedule, reset]);
+
+  const selectedPetId = useWatch({ control, name: 'petId' });
+  const selectedPet = pets.find((pet) => pet.id.toString() === selectedPetId);
+  const selectedClient = selectedPet ? clients.find((client) => client.id === selectedPet.clienteId) : null;
 
   return (
     <div className="schedule-modal-overlay">
@@ -49,19 +51,6 @@ const ScheduleForm = ({ clients, pets, veterinarians, schedule, onSubmit, onClos
         </div>
 
         <form onSubmit={handleSubmit((data) => onSubmit(data))}>
-          <div className="form-row">
-            <label>Cliente</label>
-            <select {...register('clientId')}>
-              <option value="">Selecione um cliente</option>
-              {clients.map((client) => (
-                <option key={client.id} value={client.id}>
-                  {client.nome}
-                </option>
-              ))}
-            </select>
-            {errors.clientId && <span className="field-error">{errors.clientId.message}</span>}
-          </div>
-
           <div className="form-row">
             <label>Pet</label>
             <select {...register('petId')}>
@@ -74,6 +63,13 @@ const ScheduleForm = ({ clients, pets, veterinarians, schedule, onSubmit, onClos
             </select>
             {errors.petId && <span className="field-error">{errors.petId.message}</span>}
           </div>
+
+          {selectedPet && selectedClient && (
+            <div className="form-row">
+              <label>Cliente</label>
+              <input type="text" value={selectedClient.nome} readOnly />
+            </div>
+          )}
 
           <div className="form-row">
             <label>Médico Veterinário</label>

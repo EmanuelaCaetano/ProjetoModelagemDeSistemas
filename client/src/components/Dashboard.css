@@ -117,32 +117,49 @@
   line-height: 1.5;
 }
 
-.animais-section {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
+  .reports-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.08);
+    margin-top: 1.5rem;
+  }
 
-.animais-section h3 {
-  color: #1f2937;
-  margin: 0 0 1rem 0;
-  font-size: 1.4rem;
-}
+  .reports-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
 
-.animais-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-}
+  .report-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+  }
 
-.animal-card {
-  background: var(--color-white);
-  padding: 1.2rem;
-  border-radius: 14px;
-  border: 1px solid #d1d5db;
-  transition: box-shadow 0.2s, transform 0.2s;
-}
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .report-table th,
+  .report-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    font-size: 0.95rem;
+  }
+
+  .report-table th {
+    background: #f8fafc;
+    color: #1f2937;
+    font-weight: 700;
+  }
+
+  .report-table tbody tr:hover {
+    background: #f8fafc;
+  }
 
 .animal-card:hover {
   box-shadow: 0 10px 24px rgba(16, 185, 129, 0.1);
