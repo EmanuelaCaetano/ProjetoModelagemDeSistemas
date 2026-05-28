@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
+import { OptionButton } from './OptionButton';
 import { useChat } from './useChat';
 import './ChatWindow.css';
+import './OptionButton.css';
 
 interface ChatWindowProps {
   userRole: 'client' | 'admin';
@@ -10,6 +12,24 @@ interface ChatWindowProps {
   onClose?: () => void;
   apiUrl?: string;
 }
+
+const clientQuickReplies = [
+  {
+    label: 'Agendar Consulta',
+    message: 'Agendar Consulta',
+    command: 'BOOK_APPOINTMENT',
+  },
+  {
+    label: 'Ver Minhas Consultas',
+    message: 'Ver Minhas Consultas',
+    command: 'VIEW_APPOINTMENTS',
+  },
+  {
+    label: 'Cancelar Consulta',
+    message: 'Cancelar Consulta',
+    command: 'CANCEL_APPOINTMENT',
+  },
+];
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
   userRole,
@@ -27,6 +47,15 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     messagesEndRef,
     scrollToBottom,
   } = useChat(userRole, { apiUrl });
+
+  const handleQuickReply = (reply: {
+    label: string;
+    message: string;
+    command: string;
+    payload?: Record<string, any>;
+  }) => {
+    sendMessage({ message: reply.message, command: reply.command, payload: reply.payload });
+  };
 
   // Carrega histórico ao montar o componente
   useEffect(() => {
@@ -73,6 +102,26 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       </div>
 
       {/* Messages Container */}
+      {userRole === 'client' && (
+        <div className="quick-replies">
+          <span className="quick-replies-label">Sugestões de pergunta:</span>
+          <div className="quick-replies-list">
+            {clientQuickReplies.map((reply) => (
+              <button
+                key={reply.command}
+                className="quick-reply-button"
+                type="button"
+                onClick={() => handleQuickReply(reply)}
+                disabled={isLoading}
+                title={`Enviar comando ${reply.command}`}
+              >
+                {reply.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="messages-container">
         {messages.length === 0 && !isLoading && (
           <div className="empty-state">
@@ -88,13 +137,26 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
         {/* Mensagens */}
         {messages.map((msg) => (
-          <MessageBubble
-            key={msg.id}
-            role={msg.role}
-            content={msg.content}
-            timestamp={msg.timestamp}
-            toolsUsed={msg.toolsUsed}
-          />
+          <div key={msg.id} className="message-with-options">
+            <MessageBubble
+              role={msg.role}
+              content={msg.content}
+              timestamp={msg.timestamp}
+              toolsUsed={msg.toolsUsed}
+            />
+            {msg.options && msg.options.length > 0 && (
+              <div className="message-options">
+                {msg.options.map((option) => (
+                  <OptionButton
+                    key={`${msg.id}-${option.command}-${option.label}`}
+                    label={option.label}
+                    onClick={() => handleQuickReply({ message: option.label, command: option.command, payload: option.payload })}
+                    disabled={isLoading}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         ))}
 
         {/* Indicador de carregamento */}

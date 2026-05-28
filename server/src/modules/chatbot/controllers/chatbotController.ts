@@ -1,5 +1,5 @@
-import { Response, NextFunction } from "express";
-import { openAIChatService } from "../services/openAIChatService";
+import { Response } from "express";
+import { programmedChatService } from "../services/programmedChatService";
 import { ChatMessageRequest } from "../types";
 import { AuthRequest } from "../../../middlewares/auth";
 
@@ -12,11 +12,13 @@ export class ChatbotController {
     res: Response
   ): Promise<void> {
     try {
-      const { message } = req.body as ChatMessageRequest;
-      const userId = req.userId;
-      const userRole = req.userRole || "cliente";
+      const { message, command, payload } = req.body as ChatMessageRequest & {
+        command?: string;
+        payload?: Record<string, any>;
+      };
+      const userId = req.userId ?? 0;
+      const userRole = "cliente";
 
-      // Validações
       if (!message || typeof message !== "string" || message.trim() === "") {
         res.status(400).json({
           error: "Mensagem inválida",
@@ -25,36 +27,24 @@ export class ChatbotController {
         return;
       }
 
-      if (!userId) {
-        res.status(401).json({
-          error: "Não autenticado",
-          message: "Usuário não autenticado",
-        });
-        return;
-      }
-
-      if (userRole !== "cliente") {
-        res.status(403).json({
-          error: "Acesso negado",
-          message: "Este endpoint é apenas para clientes",
-        });
-        return;
-      }
-
-      // Processa a mensagem através do OpenAI
-      const result = await openAIChatService.processMessage(
+      const result = await programmedChatService.processMessage(
         userId,
-        message.trim(),
-        userRole as any,
-        [] // Começar com histórico vazio ou buscar do DB
+        command,
+        payload,
+        userRole as any
       );
+
+      if (userId > 0) {
+        await programmedChatService.saveChatMessages(userId, message.trim(), result.response);
+      }
 
       res.status(200).json({
         success: true,
         data: {
           response: result.response,
+          options: result.options,
           toolsUsed: result.toolsUsed,
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
         },
       });
     } catch (error) {
@@ -74,11 +64,13 @@ export class ChatbotController {
     res: Response
   ): Promise<void> {
     try {
-      const { message } = req.body as ChatMessageRequest;
-      const userId = req.userId;
-      const userRole = req.userRole || "administrador";
+      const { message, command, payload } = req.body as ChatMessageRequest & {
+        command?: string;
+        payload?: Record<string, any>;
+      };
+      const userId = req.userId ?? 0;
+      const userRole = "administrador";
 
-      // Validações
       if (!message || typeof message !== "string" || message.trim() === "") {
         res.status(400).json({
           error: "Mensagem inválida",
@@ -87,36 +79,24 @@ export class ChatbotController {
         return;
       }
 
-      if (!userId) {
-        res.status(401).json({
-          error: "Não autenticado",
-          message: "Usuário não autenticado",
-        });
-        return;
-      }
-
-      if (userRole !== "administrador") {
-        res.status(403).json({
-          error: "Acesso negado",
-          message: "Este endpoint é apenas para administradores",
-        });
-        return;
-      }
-
-      // Processa a mensagem através do OpenAI
-      const result = await openAIChatService.processMessage(
+      const result = await programmedChatService.processMessage(
         userId,
-        message.trim(),
-        userRole as any,
-        []
+        command,
+        payload,
+        userRole as any
       );
+
+      if (userId > 0) {
+        await programmedChatService.saveChatMessages(userId, message.trim(), result.response);
+      }
 
       res.status(200).json({
         success: true,
         data: {
           response: result.response,
+          options: result.options,
           toolsUsed: result.toolsUsed,
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
         },
       });
     } catch (error) {
@@ -136,21 +116,22 @@ export class ChatbotController {
     res: Response
   ): Promise<void> {
     try {
-      const userId = req.userId;
+      const userId = req.userId ?? 0;
       const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
 
       if (!userId) {
-        res.status(401).json({
-          error: "Não autenticado",
-          message: "Usuário não autenticado",
+        res.status(200).json({
+          success: true,
+          data: {
+            history: [],
+            totalMessages: 0,
+            limit,
+          },
         });
         return;
       }
 
-      const history = await openAIChatService.getConversationHistory(
-        userId,
-        limit
-      );
+      const history = await programmedChatService.getConversationHistory(userId, limit);
 
       res.status(200).json({
         success: true,
@@ -174,16 +155,14 @@ export class ChatbotController {
    */
   static async healthCheck(req: any, res: Response): Promise<void> {
     try {
-      const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
+      const health = await programmedChatService.healthCheck();
 
       res.status(200).json({
         success: true,
         data: {
           service: "Chatbot",
           status: "healthy",
-          openAI: {
-            configured: hasOpenAIKey,
-          },
+          details: health,
           timestamp: new Date(),
         },
       });

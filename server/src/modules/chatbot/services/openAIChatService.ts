@@ -7,12 +7,17 @@ import { mockChatService } from "./mockChatService";
 
 const prisma = new PrismaClient();
 
-// Verifica se há chave OpenAI configurada
-const hasOpenAIKey = !!process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== "";
+const disableOpenAI =
+  process.env.DISABLE_OPENAI?.toString().trim().toLowerCase() === "true";
+const hasOpenAIKey =
+  !disableOpenAI &&
+  !!process.env.OPENAI_API_KEY &&
+  process.env.OPENAI_API_KEY.trim() !== "";
 
-// Inicializa OpenAI apenas se houver chave
 let openai: OpenAI | null = null;
-if (hasOpenAIKey) {
+if (disableOpenAI) {
+  console.log("ℹ️ OpenAI desabilitado via DISABLE_OPENAI=true. Usando Mock Chat Service.");
+} else if (hasOpenAIKey) {
   try {
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
@@ -29,7 +34,7 @@ export class OpenAIChatService {
    * Processa uma mensagem do usuário através do OpenAI com function calling
    */
   async processMessage(
-    userId: number,
+    userId: number = 0,
     userMessage: string,
     userRole: UserRole,
     conversationHistory: Array<{ role: string; content: string }> = []
@@ -40,7 +45,7 @@ export class OpenAIChatService {
   }> {
     // Se não houver OpenAI, usa o Mock Service
     if (!openai) {
-      console.log("📢 Usando Mock Chat Service (sem OpenAI API Key)");
+      console.log("📢 Usando Mock Chat Service (OpenAI desabilitado ou não configurado)");
       return mockChatService.processMessage(
         userId,
         userMessage,
@@ -64,33 +69,48 @@ export class OpenAIChatService {
       const systemPrompt = this.getSystemPrompt(userRole, context);
 
       // Chamada inicial ao OpenAI
-      let response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...updatedHistory.map((msg) => ({
-            role: msg.role as "user" | "assistant" | "system",
-            content: msg.content,
-          })),
-        ],
-        tools: tools as any,
-        tool_choice: "auto",
-        temperature: 0.7,
-        max_tokens: 2000,
-      });
-
+      let response;
       let toolsUsed: string[] = [];
-      let assistantMessage = response.choices[0]?.message;
+      let assistantMessage: any = null;
+
+      try {
+        response = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...updatedHistory.map((msg) => ({
+              role: msg.role as "user" | "assistant" | "system",
+              content: msg.content,
+            })),
+          ],
+          tools: tools as any,
+          tool_choice: "auto",
+          temperature: 0.7,
+          max_tokens: 2000,
+          // Timeout may be managed by underlying http client
+        });
+
+        assistantMessage = response.choices[0]?.message;
+      } catch (openaiError) {
+        console.error("Erro na chamada OpenAI, usando Mock como fallback:", openaiError);
+        // Fallback para Mock Service em caso de erro de rede ou OpenAI
+        return mockChatService.processMessage(
+          userId,
+          userMessage,
+          userRole,
+          conversationHistory
+        );
+      }
 
       // Processa tool calls se houver
       while (
         response.choices[0]?.finish_reason === "tool_calls" &&
         assistantMessage?.tool_calls
       ) {
-        const toolCalls = assistantMessage.tool_calls;
-        toolsUsed = toolCalls
-          .filter((call) => call.type === "function")
-          .map((call) => {
+const toolCalls: any[] = assistantMessage.tool_calls;
+      toolsUsed = toolCalls
+        .filter((call: any) => call.type === "function")
+        .map((call: any) => {
             if (call.type === "function") {
               return call.function.name;
             }
@@ -127,22 +147,32 @@ export class OpenAIChatService {
         }
 
         // Nova chamada ao OpenAI com os resultados das ferramentas
-        response = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: systemPrompt },
-            ...updatedHistory.map((msg) => ({
-              role: msg.role as "user" | "assistant" | "system",
-              content: msg.content,
-            })),
-          ],
-          tools: tools as any,
-          tool_choice: "auto",
-          temperature: 0.7,
-          max_tokens: 2000,
-        });
+        try {
+          response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...updatedHistory.map((msg) => ({
+                role: msg.role as "user" | "assistant" | "system",
+                content: msg.content,
+              })),
+            ],
+            tools: tools as any,
+            tool_choice: "auto",
+            temperature: 0.7,
+            max_tokens: 2000,
+          });
 
-        assistantMessage = response.choices[0]?.message;
+          assistantMessage = response.choices[0]?.message;
+        } catch (openaiError) {
+          console.error("Erro na chamada OpenAI (segunda etapa), usando Mock como fallback:", openaiError);
+          return mockChatService.processMessage(
+            userId,
+            userMessage,
+            userRole,
+            conversationHistory
+          );
+        }
       }
 
       // Extrai o conteúdo final da resposta
@@ -150,8 +180,10 @@ export class OpenAIChatService {
         assistantMessage?.content ||
         "Desculpe, não consegui processar sua solicitação.";
 
-      // Salva a mensagem do usuário e a resposta no banco
-      await this.saveChatMessages(userId, userMessage, finalResponse);
+      // Salva a mensagem do usuário e a resposta no banco quando houver usuário válido
+      if (userId > 0) {
+        await this.saveChatMessages(userId, userMessage, finalResponse);
+      }
 
       // Atualiza o histórico com a resposta final
       updatedHistory.push({
@@ -286,26 +318,33 @@ export class OpenAIChatService {
    */
   private getSystemPrompt(userRole: UserRole, context: ConversationContext): string {
     if (userRole === "cliente") {
-      return `Você é um assistente amigável e prestativo de uma clínica veterinária.
+      return `Você é um assistente virtual de uma clínica veterinária, focado em ajudar clientes a agendar consultas para seus pets.
 
-Seu objetivo é ajudar clientes a:
-- Marcar consultas para seus pets
-- Consultar horários disponíveis
-- Visualizar suas consultas futuras
-- Encontrar veterinários especializados
+Seu papel é conduzir o cliente por um fluxo completo de agendamento:
+1. Perguntar qual pet será atendido.
+2. Perguntar qual especialidade ou tipo de atendimento o cliente deseja.
+3. Consultar os veterinários disponíveis para essa especialidade.
+4. Consultar os horários reais disponíveis.
+5. Exibir opções reais de médicos e horários.
+6. Confirmar o agendamento com o cliente antes de criar a consulta.
+7. Criar a consulta no banco de dados quando a confirmação for clara.
+
+Ferramentas disponíveis:
+- getClientPets: para listar os pets do cliente.
+- listVeterinarians: para listar veterinários disponíveis.
+- findVeterinarianBySpecialty: para buscar veterinários por especialidade.
+- getAvailableSchedules: para consultar horários livres.
+- createSchedule: para criar o agendamento.
+- listClientSchedules: para mostrar consultas futuras.
+
+Importante:
+- Sempre use as ferramentas para obter dados reais.
+- Não invente horários, nomes de médicos ou informações.
+- Se não tiver dados suficientes, peça a informação adicional ao cliente.
+- Seja conversacional, educado e objetivo.
 
 Informações do cliente:
 - ID do Cliente: ${context.userId}
-
-Instruções importantes:
-1. Sempre seja empático e educado
-2. Para marcar uma consulta, pergunte:
-   - Qual pet será atendido
-   - Qual especialidade deseja
-   - Data e horário preferido
-3. Nunca forneça informações falsas - use sempre as ferramentas disponíveis
-4. Se o cliente pedir para cancelar ou modificar uma consulta, dirija para suporte humano
-5. Mantenha a conversa natural e conversacional
 
 `;
     } else if (userRole === "administrador") {
@@ -630,21 +669,50 @@ Instruções importantes:
    */
   async getConversationHistory(userId: number, limit: number = 20) {
     try {
+      if (!userId || userId <= 0) {
+        return [];
+      }
+
       const messages = await prisma.chatMessage.findMany({
         where: { userId },
-        orderBy: { createdAt: "asc" },
-        take: -limit, // Últimas N mensagens
+        orderBy: { createdAt: "desc" },
+        take: limit, // Últimas N mensagens
         select: { role: true, message: true, createdAt: true },
       });
 
-      return messages.map((msg) => ({
-        role: msg.role,
-        content: msg.message,
-        timestamp: msg.createdAt,
-      }));
+      // Retorna em ordem ascendente
+      return messages
+        .reverse()
+        .map((msg) => ({
+          role: msg.role,
+          content: msg.message,
+          timestamp: msg.createdAt,
+        }));
     } catch (error) {
       console.error("Erro ao obter histórico de conversa:", error);
       return [];
+    }
+  }
+
+  /**
+   * Verifica conectividade com a OpenAI (quando configurada)
+   */
+  async checkOpenAIConnectivity(): Promise<{ configured: boolean; reachable: boolean; disabled: boolean; error?: string }>{
+    if (disableOpenAI) {
+      return { configured: false, reachable: false, disabled: true, error: "OpenAI desabilitado pelo servidor" };
+    }
+
+    if (!openai) {
+      return { configured: false, reachable: false, disabled: false, error: "OPENAI_API_KEY não configurada" };
+    }
+
+    try {
+      // Lista modelos como verificação leve de conectividade
+      await openai.models.list();
+      return { configured: true, reachable: true, disabled: false };
+    } catch (error: any) {
+      console.error("OpenAI connectivity check failed:", error);
+      return { configured: true, reachable: false, disabled: false, error: error?.message || String(error) };
     }
   }
 }

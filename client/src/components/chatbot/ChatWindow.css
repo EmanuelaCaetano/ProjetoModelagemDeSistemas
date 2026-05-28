@@ -94,6 +94,48 @@
   background: #555;
 }
 
+/* Quick Replies */
+.quick-replies {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background-color: #f5f8ff;
+  border-bottom: 1px solid #e4e9f2;
+}
+
+.quick-replies-label {
+  font-size: 14px;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.quick-replies-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quick-reply-button {
+  background-color: #eef4ff;
+  border: 1px solid #c7d7f5;
+  color: #1f4bb6;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-reply-button:hover {
+  background-color: #dbe8ff;
+}
+
+.quick-reply-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Empty State */
 .empty-state {
   display: flex;
@@ -122,6 +164,20 @@
   font-size: 14px;
   max-width: 300px;
   line-height: 1.5;
+}
+
+/* Message Options */
+.message-with-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.message-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: 40px;
 }
 
 /* Loading Indicator */

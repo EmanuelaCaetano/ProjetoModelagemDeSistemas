@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ChatWindow } from '../components/chatbot/ChatWindow';
 
 interface AdminChatPageProps {
@@ -6,29 +6,6 @@ interface AdminChatPageProps {
 }
 
 export const AdminChatPage: React.FC<AdminChatPageProps> = ({ apiUrl = 'http://localhost:4000' }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    // Verifica se o usuário está autenticado como admin
-    const token = localStorage.getItem('token');
-    const userRole = localStorage.getItem('userRole');
-
-    if (token && userRole === 'administrador') {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  if (!isAuthenticated) {
-    return (
-      <div style={styles.container}>
-        <div style={styles.errorBox}>
-          <h2>Acesso Negado</h2>
-          <p>Você precisa estar autenticado como administrador para acessar esta página.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div style={styles.pageContainer}>
       <ChatWindow

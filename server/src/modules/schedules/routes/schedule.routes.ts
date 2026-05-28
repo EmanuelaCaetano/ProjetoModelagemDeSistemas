@@ -3,6 +3,7 @@ import {
   cancelScheduleController,
   createScheduleController,
   getScheduleController,
+  listAvailableSchedulesController,
   listMySchedulesController,
   listSchedulesController,
   updateScheduleController,
@@ -15,10 +16,10 @@ const router = Router();
 router.post(
   "/",
   scheduleMiddlewares.authenticateJWT,
-  scheduleMiddlewares.authorizeSecretaryOrAdmin,
   validateSchedulePayload,
   createScheduleController
 );
+router.get("/available", scheduleMiddlewares.authenticateJWT, listAvailableSchedulesController);
 router.get("/", scheduleMiddlewares.authenticateJWT, scheduleMiddlewares.authorizeSecretaryOrAdmin, listSchedulesController);
 router.get("/my", scheduleMiddlewares.authenticateJWT, listMySchedulesController);
 router.get("/:id", scheduleMiddlewares.authenticateJWT, getScheduleController);
@@ -29,6 +30,6 @@ router.put(
   validateSchedulePayload,
   updateScheduleController
 );
-router.delete("/:id", scheduleMiddlewares.authenticateJWT, scheduleMiddlewares.authorizeSecretaryOrAdmin, cancelScheduleController);
+router.delete("/:id", scheduleMiddlewares.authenticateJWT, cancelScheduleController);
 
 export default router;

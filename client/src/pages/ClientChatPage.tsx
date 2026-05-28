@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ChatWindow } from '../components/chatbot/ChatWindow';
 
 interface ClientChatPageProps {
@@ -6,29 +6,6 @@ interface ClientChatPageProps {
 }
 
 export const ClientChatPage: React.FC<ClientChatPageProps> = ({ apiUrl = 'http://localhost:4000' }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    // Verifica se o usuário está autenticado
-    const token = localStorage.getItem('token');
-    const userRole = localStorage.getItem('userRole');
-
-    if (token && userRole === 'cliente') {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  if (!isAuthenticated) {
-    return (
-      <div style={styles.container}>
-        <div style={styles.errorBox}>
-          <h2>Acesso Negado</h2>
-          <p>Você precisa estar autenticado como cliente para usar o chat.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div style={styles.pageContainer}>
       <ChatWindow

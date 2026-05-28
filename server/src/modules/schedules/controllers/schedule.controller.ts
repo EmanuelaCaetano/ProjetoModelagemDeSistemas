@@ -5,6 +5,7 @@ import {
   cancelSchedule,
   createSchedule,
   findAllSchedules,
+  findAvailableSchedules,
   findScheduleById,
   findSchedulesByClient,
   updateSchedule,
@@ -16,8 +17,20 @@ export async function createScheduleController(req: AuthRequest, res: Response) 
   try {
     const data = req.body as CreateScheduleDto;
 
+    if (!req.userId) {
+      return res.status(401).json({ error: "Usuário não autenticado." });
+    }
+
+    if (req.userRole === "cliente") {
+      data.clientId = req.userId;
+    }
+
     if (!data.clientId || !data.petId || !data.veterinarianId || !data.date) {
       return res.status(400).json({ error: "clientId, petId, veterinarianId e date são obrigatórios." });
+    }
+
+    if (req.userRole === "cliente" && data.clientId !== req.userId) {
+      return res.status(403).json({ error: "Clientes só podem agendar consultas para si mesmos." });
     }
 
     const schedule = await createSchedule(data);
@@ -46,6 +59,22 @@ export async function listMySchedulesController(req: AuthRequest, res: Response)
     return res.json(schedules);
   } catch (error) {
     return res.status(500).json({ error: "Erro ao buscar suas consultas." });
+  }
+}
+
+export async function listAvailableSchedulesController(req: AuthRequest, res: Response) {
+  try {
+    const veterinarianId = Number(req.query.veterinarianId);
+    const date = String(req.query.date || "");
+
+    if (!veterinarianId || !date || isNaN(Date.parse(date))) {
+      return res.status(400).json({ error: "veterinarianId e date (YYYY-MM-DD) são obrigatórios." });
+    }
+
+    const available = await findAvailableSchedules(veterinarianId, date);
+    return res.json(available);
+  } catch (error) {
+    return res.status(500).json({ error: "Erro ao buscar horários disponíveis." });
   }
 }
 
@@ -86,13 +115,22 @@ export async function cancelScheduleController(req: AuthRequest, res: Response) 
   try {
     const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const id = idParam ?? "";
-    const schedule = await cancelSchedule(id);
 
+    const schedule = await findScheduleById(id);
     if (!schedule) {
       return res.status(404).json({ error: "Consulta não encontrada." });
     }
 
-    return res.json({ message: "Consulta cancelada com sucesso.", schedule });
+    if (req.userRole === "cliente" && req.userId !== schedule.clientId) {
+      return res.status(403).json({ error: "Clientes só podem cancelar suas próprias consultas." });
+    }
+
+    const canceled = await cancelSchedule(id);
+    if (!canceled) {
+      return res.status(404).json({ error: "Consulta não encontrada." });
+    }
+
+    return res.json({ message: "Consulta cancelada com sucesso.", schedule: canceled });
   } catch (error) {
     return res.status(500).json({ error: "Erro ao cancelar consulta." });
   }

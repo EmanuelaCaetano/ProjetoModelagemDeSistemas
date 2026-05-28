@@ -17,10 +17,9 @@ export async function authenticateJWT(req: AuthRequest, res: Response, next: Nex
 
     if (!bearerToken) {
       const userId = req.headers["x-user-id"] as string;
-      if (!userId) {
-        return res.status(401).json({ error: "Token não fornecido." });
+      if (userId) {
+        req.userId = parseInt(userId, 10);
       }
-      req.userId = parseInt(userId, 10);
       return next();
     }
 

@@ -91,11 +91,60 @@ export async function hasVeterinarianConflict(veterinarianId: number, date: stri
   return Boolean(existing);
 }
 
+export async function findAvailableSchedules(veterinarianId: number, date: string) {
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error("Data inválida.");
+  }
+
+  const startOfDay = new Date(parsed);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(startOfDay);
+  endOfDay.setDate(endOfDay.getDate() + 1);
+
+  const rows = await dbAll(
+    `SELECT date FROM schedules WHERE veterinarianId = ? AND status != 'cancelled' AND date >= ? AND date < ?`,
+    [veterinarianId, startOfDay.toISOString(), endOfDay.toISOString()]
+  );
+
+  const usedTimes = rows.map((row) => {
+    const dateObj = new Date(row.date);
+    return `${String(dateObj.getHours()).padStart(2, "0")}:${String(dateObj.getMinutes()).padStart(2, "0")}`;
+  });
+
+  const timeSlots = [];
+  for (let hour = 8; hour < 17; hour += 1) {
+    for (const minute of [0, 30]) {
+      const time = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+      if (hour === 16 && minute === 30) {
+        // Último horário fechado às 17:00
+      }
+      timeSlots.push({
+        time,
+        available: !usedTimes.includes(time),
+      });
+    }
+  }
+
+  return {
+    date: startOfDay.toISOString().slice(0, 10),
+    veterinarianId,
+    timeSlots,
+  };
+}
+
 export async function createSchedule(data: CreateScheduleDto): Promise<Schedule> {
   const date = normalizeDate(data.date);
 
   if (await hasVeterinarianConflict(data.veterinarianId, date)) {
     throw new Error("O médico já possui uma consulta agendada nesse horário.");
+  }
+
+  if (data.clientId) {
+    const owner = await dbGet("SELECT clienteId FROM animals WHERE id = ?", [data.petId]);
+    if (!owner || owner.clienteId !== data.clientId) {
+      throw new Error("Pet não encontrado ou não pertence ao cliente.");
+    }
   }
 
   const id = uuidv4();

@@ -2,6 +2,8 @@ export type UserRole = "cliente" | "medico" | "administrador" | "secretario";
 
 export interface ChatMessageRequest {
   message: string;
+  command?: string;
+  payload?: Record<string, any>;
   conversationId?: string;
 }
 
@@ -20,6 +22,7 @@ export interface ConversationContext {
     role: "user" | "assistant";
     content: string;
   }>;
+  timestamp?: Date;
 }
 
 export interface ToolCall {

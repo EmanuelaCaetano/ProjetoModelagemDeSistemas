@@ -1,9 +1,17 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
+import { AuthRequest } from "../../../middlewares/auth";
 
-export function validateSchedulePayload(req: Request, res: Response, next: NextFunction) {
+export function validateSchedulePayload(req: AuthRequest, res: Response, next: NextFunction) {
   const { clientId, petId, veterinarianId, date } = req.body;
 
-  if (!clientId || !petId || !veterinarianId || !date) {
+  if (req.userRole === "cliente") {
+    if (!req.userId) {
+      return res.status(401).json({ error: "Usuário não autenticado." });
+    }
+    req.body.clientId = req.userId;
+  }
+
+  if (!req.body.clientId || !petId || !veterinarianId || !date) {
     return res.status(400).json({ error: "clientId, petId, veterinarianId e date são obrigatórios." });
   }
 

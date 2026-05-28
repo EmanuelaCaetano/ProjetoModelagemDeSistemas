@@ -97,22 +97,8 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/chat"
-            element={
-              <ProtectedRoute>
-                <ClientChatPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chat/admin"
-            element={
-              <ProtectedRoute>
-                <AdminChatPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/chat" element={<ClientChatPage />} />
+          <Route path="/chat/admin" element={<AdminChatPage />} />
           <Route
             path="/"
             element={<Navigate to={user ? "/dashboard" : "/login"} />}

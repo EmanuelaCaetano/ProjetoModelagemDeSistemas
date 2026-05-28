@@ -1,12 +1,21 @@
 import { useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 
+export interface ChatOption {
+  label: string;
+  command: string;
+  payload?: Record<string, any>;
+}
+
 export interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
   toolsUsed?: string[];
+  options?: ChatOption[];
+  command?: string;
+  payload?: Record<string, any>;
 }
 
 interface UseCharOptions {
@@ -14,21 +23,39 @@ interface UseCharOptions {
   conversationId?: string;
 }
 
+export type SendMessagePayload =
+  | string
+  | {
+      message: string;
+      command?: string;
+      payload?: Record<string, any>;
+    };
+
 export const useChat = (userRole: 'client' | 'admin', options: UseCharOptions = {}) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const apiUrl = options.apiUrl || 'http://localhost:4000';
+  // Usa `options.apiUrl` -> `VITE_API_URL` (build) -> caminho relativo (runtime)
+  const envApiUrl = typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_API_URL : undefined;
+  // Fallback seguro para desenvolvimento: http://localhost:4000
+  const apiUrl = options.apiUrl || envApiUrl || 'http://localhost:4000';
   const endpoint = userRole === 'client' ? '/chat/client' : '/chat/admin';
 
   /**
    * Envia uma mensagem para a API
    */
   const sendMessage = useCallback(
-    async (userMessage: string) => {
-      if (!userMessage.trim()) {
+    async (userMessage: SendMessagePayload) => {
+      const messageText =
+        typeof userMessage === 'string' ? userMessage : userMessage.message;
+      const command =
+        typeof userMessage === 'string' ? undefined : userMessage.command;
+      const payload =
+        typeof userMessage === 'string' ? undefined : userMessage.payload;
+
+      if (!messageText.trim()) {
         setError('Mensagem não pode estar vazia');
         return;
       }
@@ -40,34 +67,44 @@ export const useChat = (userRole: 'client' | 'admin', options: UseCharOptions = 
       const userMessageObj: Message = {
         id: `msg-${Date.now()}-user`,
         role: 'user',
-        content: userMessage,
+        content: messageText,
         timestamp: new Date(),
+        command,
+        payload,
       };
 
       setMessages((prev) => [...prev, userMessageObj]);
 
       try {
-        // Envia a mensagem para a API
-        const response = await axios.post(
-          `${apiUrl}${endpoint}`,
-          { message: userMessage },
-          {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+        const token = localStorage.getItem('token');
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const body: Record<string, any> = { message: messageText };
+        if (command) {
+          body.command = command;
+        }
+        if (payload) {
+          body.payload = payload;
+        }
+
+        const response = await axios.post(`${apiUrl}${endpoint}`, body, {
+          headers,
+        });
 
         const { data } = response.data;
 
-        // Adiciona a resposta do assistente
         const assistantMessage: Message = {
           id: `msg-${Date.now()}-assistant`,
           role: 'assistant',
           content: data.response,
           timestamp: new Date(data.timestamp),
           toolsUsed: data.toolsUsed,
+          options: data.options || [],
         };
 
         setMessages((prev) => [...prev, assistantMessage]);
@@ -101,10 +138,16 @@ export const useChat = (userRole: 'client' | 'admin', options: UseCharOptions = 
    */
   const loadHistory = useCallback(async () => {
     try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      const token = localStorage.getItem('token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await axios.get(`${apiUrl}/chat/history`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        headers,
         params: { limit: 50 },
       });
 

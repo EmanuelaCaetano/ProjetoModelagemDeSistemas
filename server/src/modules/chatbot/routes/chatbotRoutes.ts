@@ -7,7 +7,7 @@ const router = Router();
 /**
  * POST /chat/client
  * Endpoint para chat de clientes
- * Requer autenticação JWT e role "cliente"
+ * Disponível sem autenticação, mas aceita token quando enviado
  */
 router.post("/client", authenticateJWT, async (req, res) => {
   await ChatbotController.handleClientChat(req, res);
@@ -16,7 +16,7 @@ router.post("/client", authenticateJWT, async (req, res) => {
 /**
  * POST /chat/admin
  * Endpoint para chat de administradores
- * Requer autenticação JWT e role "administrador"
+ * Disponível sem autenticação, mas aceita token quando enviado
  */
 router.post("/admin", authenticateJWT, async (req, res) => {
   await ChatbotController.handleAdminChat(req, res);
@@ -25,7 +25,7 @@ router.post("/admin", authenticateJWT, async (req, res) => {
 /**
  * GET /chat/history
  * Obtém o histórico de conversa do usuário
- * Requer autenticação JWT
+ * Disponível sem autenticação quando não há usuário logado
  */
 router.get("/history", authenticateJWT, async (req, res) => {
   await ChatbotController.getConversationHistory(req, res);

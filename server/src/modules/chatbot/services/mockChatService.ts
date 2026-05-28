@@ -216,7 +216,7 @@ export class MockChatService {
         const schedules = data?.schedules || [];
         const schedulesList = schedules
           .slice(0, 5)
-          .map((s) => `• ${s.time} - ${s.pet_name} (Dr(a). ${s.veterinarian_name})`)
+          .map((s: any) => `• ${s.time} - ${s.pet_name} (Dr(a). ${s.veterinarian_name})`)
           .join("\n");
         return `📅 **Agendamentos de Hoje**\n\nTotal: ${count} consulta${count !== 1 ? "s" : ""}\n\nPróximas consultas:\n${schedulesList}${schedules.length > 5 ? `\n... e mais ${schedules.length - 5}` : ""}`;
       }
@@ -290,6 +290,7 @@ export class MockChatService {
     return {
       userId,
       userRole,
+      recentMessages: [],
       timestamp: new Date(),
     };
   }
