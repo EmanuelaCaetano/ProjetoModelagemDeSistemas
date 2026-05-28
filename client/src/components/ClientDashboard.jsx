@@ -1,21 +1,43 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import PetList from './PetList';
 import CalendarScheduling from './CalendarScheduling';
 import EditableProfile from './EditableProfile';
+import { fetchMySchedules } from '../services/scheduleService';
 import './ClientDashboard.css';
 
 const ClientDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const [schedules, setSchedules] = useState([]);
+  const [loadingSchedules, setLoadingSchedules] = useState(false);
+  const [scheduleError, setScheduleError] = useState('');
 
   const handleLogout = () => {
     if (window.confirm('Tem certeza que deseja sair?')) {
       logout();
     }
   };
+
+  useEffect(() => {
+    const loadSchedules = async () => {
+      setLoadingSchedules(true);
+      setScheduleError('');
+
+      try {
+        const data = await fetchMySchedules();
+        setSchedules(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setScheduleError('Não foi possível carregar suas consultas.');
+      } finally {
+        setLoadingSchedules(false);
+      }
+    };
+
+    loadSchedules();
+  }, []);
 
   return (
     <div className="client-dashboard">
@@ -132,10 +154,37 @@ const ClientDashboard = () => {
         {activeTab === 'consultas' && (
           <div className="tab-pane consultas-tab">
             <h2>📅 Minhas Consultas</h2>
-            <div className="placeholder-content">
-              <p>💬 Funcionalidade de consultas em desenvolvimento</p>
-              <p>Em breve você poderá agendar e gerenciar suas consultas aqui!</p>
-            </div>
+            {scheduleError && <div className="alert alert-error">{scheduleError}</div>}
+            {loadingSchedules ? (
+              <div>Carregando suas consultas...</div>
+            ) : schedules.length === 0 ? (
+              <div>Você ainda não tem consultas agendadas.</div>
+            ) : (
+              <div className="schedule-table-wrapper">
+                <table className="schedule-table">
+                  <thead>
+                    <tr>
+                      <th>Pet</th>
+                      <th>Médico</th>
+                      <th>Data / Horário</th>
+                      <th>Status</th>
+                      <th>Observações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {schedules.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.pet?.nome || '-'}</td>
+                        <td>{item.veterinarian?.nome || '-'}</td>
+                        <td>{new Date(item.date).toLocaleString('pt-BR')}</td>
+                        <td>{item.status}</td>
+                        <td>{item.notes || '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 

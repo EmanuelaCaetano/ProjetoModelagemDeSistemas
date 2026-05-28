@@ -14,10 +14,15 @@ const schedule_service_1 = require("../services/schedule.service");
 async function createScheduleController(req, res) {
     try {
         const data = req.body;
-        if (!data.clientId || !data.petId || !data.veterinarianId || !data.date) {
+        const clientId = data.clientId || req.userId;
+        if (!clientId || !data.petId || !data.veterinarianId || !data.date) {
             return res.status(400).json({ error: "clientId, petId, veterinarianId e date são obrigatórios." });
         }
-        const schedule = await (0, schedule_service_1.createSchedule)(data);
+        const scheduleData = {
+            ...data,
+            clientId,
+        };
+        const schedule = await (0, schedule_service_1.createSchedule)(scheduleData);
         return res.status(201).json({ message: "Consulta criada com sucesso.", schedule });
     }
     catch (error) {
