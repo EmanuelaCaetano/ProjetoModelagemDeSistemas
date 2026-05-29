@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.findScheduleById = findScheduleById;
 exports.findAllSchedules = findAllSchedules;
 exports.findSchedulesByClient = findSchedulesByClient;
+exports.findSchedulesByVeterinarian = findSchedulesByVeterinarian;
 exports.findSchedulesByDate = findSchedulesByDate;
 exports.hasVeterinarianConflict = hasVeterinarianConflict;
 exports.createSchedule = createSchedule;
@@ -60,6 +61,38 @@ async function findSchedulesByClient(clientId) {
     WHERE s.clientId = ?
     ORDER BY s.date ASC
   `, [clientId]);
+    return rows.map((row) => ({
+        ...row,
+        client: {
+            id: row.clientId,
+            nome: row.client_nome,
+            email: row.client_email,
+        },
+        pet: {
+            id: row.petId,
+            nome: row.pet_nome,
+            especie: row.pet_especie,
+            raca: row.pet_raca,
+        },
+        veterinarian: {
+            id: row.veterinarianId,
+            nome: row.vet_nome,
+            especialidade: row.vet_especialidade,
+        },
+    }));
+}
+async function findSchedulesByVeterinarian(veterinarianId) {
+    const rows = await (0, db_1.dbAll)(`
+    SELECT s.*, u.nome AS client_nome, u.email AS client_email,
+           p.nome AS pet_nome, p.especie AS pet_especie, p.raca AS pet_raca,
+           v.nome AS vet_nome, v.especialidade AS vet_especialidade
+    FROM schedules s
+    JOIN users u ON s.clientId = u.id
+    JOIN animals p ON s.petId = p.id
+    JOIN users v ON s.veterinarianId = v.id
+    WHERE s.veterinarianId = ?
+    ORDER BY s.date ASC
+  `, [veterinarianId]);
     return rows.map((row) => ({
         ...row,
         client: {

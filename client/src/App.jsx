@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard';
 import ClientDashboard from './components/ClientDashboard';
 import SecretarySchedulePage from './pages/schedules/secretary/SecretarySchedulePage';
 import ClientSchedulePage from './pages/schedules/client/ClientSchedulePage';
+import DoctorSchedulePage from './pages/schedules/doctor/DoctorSchedulePage';
 import AdminSchedulesPage from './pages/schedules/admin/AdminSchedulesPage';
 import './App.css';
 
@@ -44,6 +45,8 @@ const AppContent = () => {
         return <SecretarySchedulePage />;
       case 'administrador':
         return <AdminSchedulesPage />;
+      case 'medico':
+        return <DoctorSchedulePage />;
       case 'cliente':
         return <ClientSchedulePage />;
       default:

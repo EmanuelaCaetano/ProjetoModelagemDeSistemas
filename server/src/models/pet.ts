@@ -24,6 +24,7 @@ export interface PetPublic {
   idade: number;
   peso: number;
   dataNascimento?: string;
+  clienteId: number;
   createdAt: string;
 }
 
@@ -36,6 +37,7 @@ export function toPublic(pet: Pet): PetPublic {
     idade: pet.idade,
     peso: pet.peso,
     dataNascimento: pet.dataNascimento,
+    clienteId: pet.clienteId,
     createdAt: pet.createdAt,
   };
 }
@@ -46,6 +48,10 @@ export async function findPetById(id: number): Promise<Pet | undefined> {
 
 export async function findPetsByClientId(clienteId: number): Promise<Pet[]> {
   return await dbAll("SELECT * FROM animals WHERE clienteId = ? ORDER BY createdAt DESC", [clienteId]) as Pet[];
+}
+
+export async function findAllPets(): Promise<Pet[]> {
+  return await dbAll("SELECT * FROM animals ORDER BY createdAt DESC") as Pet[];
 }
 
 export async function createPet(pet: PetBase): Promise<Pet> {
