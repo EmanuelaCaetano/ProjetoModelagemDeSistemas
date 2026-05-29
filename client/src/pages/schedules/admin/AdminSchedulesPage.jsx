@@ -1,27 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
-import { fetchAllSchedules } from '../../../services/scheduleService';
+import { useSchedules } from '../../../contexts/ScheduleContext';
 
 const AdminSchedulesPage = () => {
   const { user } = useAuth();
-  const [schedules, setSchedules] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { allSchedules, loading, error, syncSchedules } = useSchedules();
 
   useEffect(() => {
-    loadSchedules();
-  }, []);
-
-  const loadSchedules = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchAllSchedules();
-      setSchedules(data);
-    } catch (err) {
-      setError('Não foi possível carregar a agenda da clínica.');
-    }
-    setLoading(false);
-  };
+    syncSchedules();
+  }, [syncSchedules]);
 
   if (!user || user.tipoUsuario !== 'administrador') {
     return <div>Você não tem permissão para acessar esta página.</div>;
@@ -32,7 +19,7 @@ const AdminSchedulesPage = () => {
       <header className="schedule-page-header">
         <div>
           <h1>Agenda Administrativa</h1>
-          <p>Visualize todas as consultas da clínica sem editar ou cancelar.</p>
+          <p>Visualize todas as consultas da clínica em tempo real.</p>
         </div>
       </header>
 
@@ -42,6 +29,9 @@ const AdminSchedulesPage = () => {
         <div>Carregando agenda clínica...</div>
       ) : (
         <div className="schedule-table-wrapper">
+          <div className="schedule-info">
+            <strong>Total de Consultas: {allSchedules.length}</strong>
+          </div>
           <table className="schedule-table">
             <thead>
               <tr>
@@ -54,16 +44,31 @@ const AdminSchedulesPage = () => {
               </tr>
             </thead>
             <tbody>
-              {schedules.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.client?.nome}</td>
-                  <td>{item.pet?.nome}</td>
-                  <td>{item.veterinarian?.nome}</td>
-                  <td>{new Date(item.date).toLocaleString('pt-BR')}</td>
-                  <td>{item.status}</td>
-                  <td>{item.notes || '—'}</td>
+              {allSchedules.length === 0 ? (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
+                    Nenhuma consulta agendada ainda.
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                allSchedules.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.client?.nome}</td>
+                    <td>{item.pet?.nome}</td>
+                    <td>{item.veterinarian?.nome}</td>
+                    <td>{new Date(item.date).toLocaleString('pt-BR')}</td>
+                    <td>
+                      <span className={`status-badge status-${item.status}`}>
+                        {item.status === 'scheduled' && 'Agendada'}
+                        {item.status === 'confirmed' && 'Confirmada'}
+                        {item.status === 'cancelled' && 'Cancelada'}
+                        {item.status === 'completed' && 'Concluída'}
+                      </span>
+                    </td>
+                    <td>{item.notes || '—'}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

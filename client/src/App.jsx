@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ScheduleProvider } from './contexts/ScheduleContext';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
@@ -7,6 +8,7 @@ import ClientDashboard from './components/ClientDashboard';
 import SecretarySchedulePage from './pages/schedules/secretary/SecretarySchedulePage';
 import ClientSchedulePage from './pages/schedules/client/ClientSchedulePage';
 import AdminSchedulesPage from './pages/schedules/admin/AdminSchedulesPage';
+import './styles/schedules.css';
 import './App.css';
 
 // Componente para proteger rotas
@@ -108,7 +110,9 @@ const AppContent = () => {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <ScheduleProvider>
+        <AppContent />
+      </ScheduleProvider>
     </AuthProvider>
   );
 }
