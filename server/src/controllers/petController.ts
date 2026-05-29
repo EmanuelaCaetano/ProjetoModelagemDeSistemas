@@ -34,9 +34,13 @@ export async function createPet(req: Request, res: Response) {
 
 export async function listMyPets(req: Request, res: Response) {
   try {
-    const clienteId = (req as any).userId;
+    const userId = (req as any).userId;
+    const userRole = (req as any).userRole;
 
-    const pets = await petModel.findPetsByClientId(clienteId);
+    const pets = userRole === 'cliente'
+      ? await petModel.findPetsByClientId(userId)
+      : await petModel.findAllPets();
+
     const publicPets = pets.map(petModel.toPublic);
 
     res.json({
@@ -59,8 +63,8 @@ export async function getPetById(req: Request, res: Response) {
       return res.status(404).json({ error: "Pet não encontrado" });
     }
 
-    // Verify ownership
-    if (pet.clienteId !== clienteId) {
+    // Verify ownership for cliente
+    if ((req as any).userRole === 'cliente' && pet.clienteId !== (req as any).userId) {
       return res.status(403).json({ error: "Acesso negado" });
     }
 

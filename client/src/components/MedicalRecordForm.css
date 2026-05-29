@@ -1,0 +1,66 @@
+.medical-record-form,
+.prescription-form {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 24px;
+  background: #fff;
+}
+
+.medical-record-form h2,
+.prescription-form h2 {
+  margin-bottom: 16px;
+}
+
+.medical-record-form .form-group,
+.prescription-form .form-group {
+  margin-bottom: 16px;
+}
+
+.medical-record-form label,
+.prescription-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.medical-record-form input,
+.medical-record-form select,
+.medical-record-form textarea,
+.prescription-form input,
+.prescription-form select,
+.prescription-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.medical-record-form .form-error,
+.prescription-form .form-error {
+  color: #b91c1c;
+  margin-bottom: 12px;
+}
+
+.medical-record-form .form-success {
+  color: #15803d;
+  margin-bottom: 12px;
+}
+
+.medical-record-form .btn-submit,
+.prescription-form .btn-submit {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.medical-record-form .record-summary {
+  background: #f5f7ff;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}

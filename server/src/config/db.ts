@@ -73,35 +73,6 @@ db.serialize(async () => {
       );
     `);
 
-    const countResult = await dbGet("SELECT COUNT(1) AS count FROM users");
-    if (countResult.count === 0) {
-      const seedUsers = [
-        {
-          nome: "Administrador Master",
-          email: "admin@newpet.com",
-          senha: hashPassword("Admin@123"),
-          role: "administrador",
-          nivelAcesso: "total",
-        },
-        {
-          nome: "Dr. Veterinário",
-          email: "medico@newpet.com",
-          senha: hashPassword("Medico@123"),
-          role: "medico",
-          crmv: "CRMV-12345",
-          especialidade: "Clínica Geral",
-        },
-        {
-          nome: "Cliente Padrão",
-          email: "cliente@newpet.com",
-          senha: hashPassword("Cliente@123"),
-          role: "cliente",
-          telefone: "+55 11 99999-9999",
-          endereco: "Rua Exemplo, 123",
-        },
-      ];
->>>>>>> main
-
     await dbRun(`
       CREATE TABLE IF NOT EXISTS appointments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -117,6 +88,46 @@ db.serialize(async () => {
         FOREIGN KEY (clienteId) REFERENCES users(id),
         FOREIGN KEY (medicoId) REFERENCES users(id)
       );
+    `);
+
+    await dbRun(`
+      CREATE TABLE IF NOT EXISTS medical_records (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        scheduleId TEXT,
+        animalId INTEGER NOT NULL,
+        doctorId INTEGER NOT NULL,
+        diagnostico TEXT NOT NULL,
+        observacoes TEXT,
+        medicamentos TEXT,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        FOREIGN KEY (scheduleId) REFERENCES schedules(id),
+        FOREIGN KEY (animalId) REFERENCES animals(id),
+        FOREIGN KEY (doctorId) REFERENCES users(id),
+        UNIQUE(animalId)
+      );
+    `);
+
+    await dbRun(`
+      CREATE TABLE IF NOT EXISTS schedules (
+        id TEXT PRIMARY KEY,
+        clientId INTEGER NOT NULL,
+        petId INTEGER NOT NULL,
+        veterinarianId INTEGER NOT NULL,
+        date TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'scheduled' CHECK(status IN ('scheduled','cancelled','completed')),
+        notes TEXT,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        FOREIGN KEY (clientId) REFERENCES users(id),
+        FOREIGN KEY (petId) REFERENCES animals(id),
+        FOREIGN KEY (veterinarianId) REFERENCES users(id)
+      );
+    `);
+
+    await dbRun(`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_schedules_veterinarian_date
+      ON schedules(veterinarianId, date);
     `);
 
     const existingUsersTable = await dbGet("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'users'");
@@ -138,7 +149,6 @@ db.serialize(async () => {
           nivelAcesso TEXT,
           createdAt TEXT NOT NULL
         );
-<<<<<<< HEAD
       `);
       await dbRun(`
         INSERT INTO users (id, nome, email, senha, role, telefone, endereco, crmv, especialidade, nivelAcesso, createdAt)
@@ -200,39 +210,6 @@ db.serialize(async () => {
            createdAt = createdAt;`,
         [user.nome, user.email, user.senha, user.role, user.telefone || null, user.endereco || null, user.crmv || null, user.especialidade || null, user.nivelAcesso || null, now]
       );
-=======
-      }
-
-      // Add seed pets for the default client (id = 3)
-      const seedPets = [
-        {
-          nome: "Max",
-          especie: "Cão",
-          raca: "Labrador",
-          idade: 3,
-          peso: 35.5,
-          dataNascimento: "2021-05-15",
-          clienteId: 3,
-        },
-        {
-          nome: "Luna",
-          especie: "Gato",
-          raca: "Persa",
-          idade: 2,
-          peso: 4.2,
-          dataNascimento: "2022-03-20",
-          clienteId: 3,
-        },
-      ];
-
-      for (const pet of seedPets) {
-        await dbRun(
-          `INSERT INTO animals (nome, especie, raca, idade, peso, dataNascimento, clienteId, createdAt, updatedAt)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [pet.nome, pet.especie, pet.raca, pet.idade, pet.peso, pet.dataNascimento, pet.clienteId, now, now]
-        );
-      }
->>>>>>> main
     }
   } catch (error) {
     console.error("Erro ao inicializar banco de dados:", error);

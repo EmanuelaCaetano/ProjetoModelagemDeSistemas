@@ -113,19 +113,19 @@ const Dashboard = () => {
             </div>
 
             <div className="features-grid">
-              <div className="feature-card">
+              <div className="feature-card" onClick={() => navigate('/schedules')} style={{ cursor: 'pointer' }}>
                 <h3>📅 Consultas</h3>
                 <p>Visualizar agenda e consultas do dia</p>
               </div>
 
-              <div className="feature-card">
+              <div className="feature-card" onClick={() => navigate('/schedules')} style={{ cursor: 'pointer' }}>
                 <h3>📋 Prontuários</h3>
-                <p>Acessar histórico dos pacientes</p>
+                <p>Acessar histórico e registrar prontuários das consultas</p>
               </div>
 
-              <div className="feature-card">
+              <div className="feature-card" onClick={() => navigate('/schedules')} style={{ cursor: 'pointer' }}>
                 <h3>💊 Receitas</h3>
-                <p>Emitir receitas e prescrições</p>
+                <p>Emitir receituários e prescrições a partir das consultas</p>
               </div>
             </div>
           </div>
