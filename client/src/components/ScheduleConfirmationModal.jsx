@@ -5,6 +5,7 @@ import './ScheduleConfirmationModal.css';
 const ScheduleConfirmationModal = ({
   selectedDate,
   selectedPet,
+  selectedClient,
   selectedVeterinarian,
   selectedTime,
   onConfirm,
@@ -31,10 +32,17 @@ const ScheduleConfirmationModal = ({
             <span className="confirmation-value">{selectedTime?.time}</span>
           </div>
 
+          {selectedClient && (
+            <div className="confirmation-item">
+              <span className="confirmation-label">👤 Cliente:</span>
+              <span className="confirmation-value">{selectedClient.nome}</span>
+            </div>
+          )}
+
           <div className="confirmation-item">
             <span className="confirmation-label">🐾 Pet:</span>
             <span className="confirmation-value">
-              {selectedPet?.nome} ({selectedPet?.especie})
+              {selectedPet ? `${selectedPet.nome} (${selectedPet.especie})` : 'Não informado'}
             </span>
           </div>
 
@@ -52,6 +60,9 @@ const ScheduleConfirmationModal = ({
 
           <div className="confirmation-summary">
             <p>Todos os dados estão corretos?</p>
+            <button className="btn btn-success" onClick={onConfirm}>
+              ✓ Confirmar Agendamento
+            </button>
           </div>
         </div>
 

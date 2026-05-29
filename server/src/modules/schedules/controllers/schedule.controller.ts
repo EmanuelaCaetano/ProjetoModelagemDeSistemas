@@ -17,8 +17,9 @@ export async function createScheduleController(req: AuthRequest, res: Response) 
   try {
     const data = req.body as CreateScheduleDto;
     const clientId = data.clientId || req.userId;
+    const requiresPet = req.userRole !== 'secretario' && req.userRole !== 'administrador';
 
-    if (!clientId || !data.petId || !data.veterinarianId || !data.date) {
+    if (!clientId || (requiresPet && !data.petId) || !data.veterinarianId || !data.date) {
       return res.status(400).json({ error: "clientId, petId, veterinarianId e date são obrigatórios." });
     }
 

@@ -100,7 +100,7 @@ db.serialize(async () => {
       CREATE TABLE IF NOT EXISTS schedules (
         id TEXT PRIMARY KEY,
         clientId INTEGER NOT NULL,
-        petId INTEGER NOT NULL,
+        petId INTEGER,
         veterinarianId INTEGER NOT NULL,
         date TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'scheduled' CHECK(status IN ('scheduled','cancelled','completed')),
@@ -142,6 +142,36 @@ db.serialize(async () => {
         FROM users_old;
       `);
             await (0, exports.dbRun)('DROP TABLE users_old');
+            await (0, exports.dbRun)('PRAGMA foreign_keys = ON');
+        }
+        const scheduleSchema = await (0, exports.dbAll)("PRAGMA table_info('schedules')");
+        const petIdColumn = scheduleSchema.find((column) => column.name === 'petId');
+        if (petIdColumn && petIdColumn.notnull === 1) {
+            console.log('Migração: atualizando schema da tabela schedules para permitir petId nulo.');
+            await (0, exports.dbRun)('PRAGMA foreign_keys = OFF');
+            await (0, exports.dbRun)('ALTER TABLE schedules RENAME TO schedules_old');
+            await (0, exports.dbRun)(`
+        CREATE TABLE schedules (
+          id TEXT PRIMARY KEY,
+          clientId INTEGER NOT NULL,
+          petId INTEGER,
+          veterinarianId INTEGER NOT NULL,
+          date TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'scheduled' CHECK(status IN ('scheduled','cancelled','completed')),
+          notes TEXT,
+          createdAt TEXT NOT NULL,
+          updatedAt TEXT NOT NULL,
+          FOREIGN KEY (clientId) REFERENCES users(id),
+          FOREIGN KEY (petId) REFERENCES animals(id),
+          FOREIGN KEY (veterinarianId) REFERENCES users(id)
+        );
+      `);
+            await (0, exports.dbRun)(`
+        INSERT INTO schedules (id, clientId, petId, veterinarianId, date, status, notes, createdAt, updatedAt)
+        SELECT id, clientId, petId, veterinarianId, date, status, notes, createdAt, updatedAt
+        FROM schedules_old;
+      `);
+            await (0, exports.dbRun)('DROP TABLE schedules_old');
             await (0, exports.dbRun)('PRAGMA foreign_keys = ON');
         }
         const seedUsers = [

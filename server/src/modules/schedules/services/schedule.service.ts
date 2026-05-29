@@ -21,7 +21,7 @@ export async function findAllSchedules(): Promise<ScheduleWithRelations[]> {
            v.nome AS vet_nome, v.especialidade AS vet_especialidade
     FROM schedules s
     JOIN users u ON s.clientId = u.id
-    JOIN animals p ON s.petId = p.id
+    LEFT JOIN animals p ON s.petId = p.id
     JOIN users v ON s.veterinarianId = v.id
     ORDER BY s.date ASC
   `);
@@ -33,12 +33,14 @@ export async function findAllSchedules(): Promise<ScheduleWithRelations[]> {
       nome: row.client_nome,
       email: row.client_email,
     },
-    pet: {
-      id: row.petId,
-      nome: row.pet_nome,
-      especie: row.pet_especie,
-      raca: row.pet_raca,
-    },
+    pet: row.petId
+      ? {
+          id: row.petId,
+          nome: row.pet_nome,
+          especie: row.pet_especie,
+          raca: row.pet_raca,
+        }
+      : undefined,
     veterinarian: {
       id: row.veterinarianId,
       nome: row.vet_nome,
@@ -54,7 +56,7 @@ export async function findSchedulesByClient(clientId: number): Promise<ScheduleW
            v.nome AS vet_nome, v.especialidade AS vet_especialidade
     FROM schedules s
     JOIN users u ON s.clientId = u.id
-    JOIN animals p ON s.petId = p.id
+    LEFT JOIN animals p ON s.petId = p.id
     JOIN users v ON s.veterinarianId = v.id
     WHERE s.clientId = ?
     ORDER BY s.date ASC
@@ -67,12 +69,14 @@ export async function findSchedulesByClient(clientId: number): Promise<ScheduleW
       nome: row.client_nome,
       email: row.client_email,
     },
-    pet: {
-      id: row.petId,
-      nome: row.pet_nome,
-      especie: row.pet_especie,
-      raca: row.pet_raca,
-    },
+    pet: row.petId
+      ? {
+          id: row.petId,
+          nome: row.pet_nome,
+          especie: row.pet_especie,
+          raca: row.pet_raca,
+        }
+      : undefined,
     veterinarian: {
       id: row.veterinarianId,
       nome: row.vet_nome,
@@ -88,7 +92,7 @@ export async function findSchedulesByDate(date: string): Promise<ScheduleWithRel
            v.nome AS vet_nome, v.especialidade AS vet_especialidade
     FROM schedules s
     JOIN users u ON s.clientId = u.id
-    JOIN animals p ON s.petId = p.id
+    LEFT JOIN animals p ON s.petId = p.id
     JOIN users v ON s.veterinarianId = v.id
     WHERE date(s.date) = date(?)
     ORDER BY s.date ASC
@@ -101,12 +105,14 @@ export async function findSchedulesByDate(date: string): Promise<ScheduleWithRel
       nome: row.client_nome,
       email: row.client_email,
     },
-    pet: {
-      id: row.petId,
-      nome: row.pet_nome,
-      especie: row.pet_especie,
-      raca: row.pet_raca,
-    },
+    pet: row.petId
+      ? {
+          id: row.petId,
+          nome: row.pet_nome,
+          especie: row.pet_especie,
+          raca: row.pet_raca,
+        }
+      : undefined,
     veterinarian: {
       id: row.veterinarianId,
       nome: row.vet_nome,

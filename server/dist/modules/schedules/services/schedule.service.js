@@ -24,7 +24,7 @@ async function findAllSchedules() {
            v.nome AS vet_nome, v.especialidade AS vet_especialidade
     FROM schedules s
     JOIN users u ON s.clientId = u.id
-    JOIN animals p ON s.petId = p.id
+    LEFT JOIN animals p ON s.petId = p.id
     JOIN users v ON s.veterinarianId = v.id
     ORDER BY s.date ASC
   `);
@@ -35,12 +35,14 @@ async function findAllSchedules() {
             nome: row.client_nome,
             email: row.client_email,
         },
-        pet: {
-            id: row.petId,
-            nome: row.pet_nome,
-            especie: row.pet_especie,
-            raca: row.pet_raca,
-        },
+        pet: row.petId
+            ? {
+                id: row.petId,
+                nome: row.pet_nome,
+                especie: row.pet_especie,
+                raca: row.pet_raca,
+            }
+            : undefined,
         veterinarian: {
             id: row.veterinarianId,
             nome: row.vet_nome,
@@ -55,7 +57,7 @@ async function findSchedulesByClient(clientId) {
            v.nome AS vet_nome, v.especialidade AS vet_especialidade
     FROM schedules s
     JOIN users u ON s.clientId = u.id
-    JOIN animals p ON s.petId = p.id
+    LEFT JOIN animals p ON s.petId = p.id
     JOIN users v ON s.veterinarianId = v.id
     WHERE s.clientId = ?
     ORDER BY s.date ASC
@@ -67,12 +69,14 @@ async function findSchedulesByClient(clientId) {
             nome: row.client_nome,
             email: row.client_email,
         },
-        pet: {
-            id: row.petId,
-            nome: row.pet_nome,
-            especie: row.pet_especie,
-            raca: row.pet_raca,
-        },
+        pet: row.petId
+            ? {
+                id: row.petId,
+                nome: row.pet_nome,
+                especie: row.pet_especie,
+                raca: row.pet_raca,
+            }
+            : undefined,
         veterinarian: {
             id: row.veterinarianId,
             nome: row.vet_nome,
@@ -87,7 +91,7 @@ async function findSchedulesByDate(date) {
            v.nome AS vet_nome, v.especialidade AS vet_especialidade
     FROM schedules s
     JOIN users u ON s.clientId = u.id
-    JOIN animals p ON s.petId = p.id
+    LEFT JOIN animals p ON s.petId = p.id
     JOIN users v ON s.veterinarianId = v.id
     WHERE date(s.date) = date(?)
     ORDER BY s.date ASC
@@ -99,12 +103,14 @@ async function findSchedulesByDate(date) {
             nome: row.client_nome,
             email: row.client_email,
         },
-        pet: {
-            id: row.petId,
-            nome: row.pet_nome,
-            especie: row.pet_especie,
-            raca: row.pet_raca,
-        },
+        pet: row.petId
+            ? {
+                id: row.petId,
+                nome: row.pet_nome,
+                especie: row.pet_especie,
+                raca: row.pet_raca,
+            }
+            : undefined,
         veterinarian: {
             id: row.veterinarianId,
             nome: row.vet_nome,

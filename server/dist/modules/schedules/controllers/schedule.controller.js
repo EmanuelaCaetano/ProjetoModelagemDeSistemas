@@ -15,7 +15,8 @@ async function createScheduleController(req, res) {
     try {
         const data = req.body;
         const clientId = data.clientId || req.userId;
-        if (!clientId || !data.petId || !data.veterinarianId || !data.date) {
+        const requiresPet = req.userRole !== 'secretario' && req.userRole !== 'administrador';
+        if (!clientId || (requiresPet && !data.petId) || !data.veterinarianId || !data.date) {
             return res.status(400).json({ error: "clientId, petId, veterinarianId e date são obrigatórios." });
         }
         const scheduleData = {

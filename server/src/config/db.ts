@@ -94,7 +94,7 @@ db.serialize(async () => {
       CREATE TABLE IF NOT EXISTS schedules (
         id TEXT PRIMARY KEY,
         clientId INTEGER NOT NULL,
-        petId INTEGER NOT NULL,
+        petId INTEGER,
         veterinarianId INTEGER NOT NULL,
         date TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'scheduled' CHECK(status IN ('scheduled','cancelled','completed')),
@@ -138,6 +138,37 @@ db.serialize(async () => {
         FROM users_old;
       `);
       await dbRun('DROP TABLE users_old');
+      await dbRun('PRAGMA foreign_keys = ON');
+    }
+
+    const scheduleSchema = await dbAll("PRAGMA table_info('schedules')");
+    const petIdColumn = scheduleSchema.find((column: any) => column.name === 'petId');
+    if (petIdColumn && petIdColumn.notnull === 1) {
+      console.log('Migração: atualizando schema da tabela schedules para permitir petId nulo.');
+      await dbRun('PRAGMA foreign_keys = OFF');
+      await dbRun('ALTER TABLE schedules RENAME TO schedules_old');
+      await dbRun(`
+        CREATE TABLE schedules (
+          id TEXT PRIMARY KEY,
+          clientId INTEGER NOT NULL,
+          petId INTEGER,
+          veterinarianId INTEGER NOT NULL,
+          date TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'scheduled' CHECK(status IN ('scheduled','cancelled','completed')),
+          notes TEXT,
+          createdAt TEXT NOT NULL,
+          updatedAt TEXT NOT NULL,
+          FOREIGN KEY (clientId) REFERENCES users(id),
+          FOREIGN KEY (petId) REFERENCES animals(id),
+          FOREIGN KEY (veterinarianId) REFERENCES users(id)
+        );
+      `);
+      await dbRun(`
+        INSERT INTO schedules (id, clientId, petId, veterinarianId, date, status, notes, createdAt, updatedAt)
+        SELECT id, clientId, petId, veterinarianId, date, status, notes, createdAt, updatedAt
+        FROM schedules_old;
+      `);
+      await dbRun('DROP TABLE schedules_old');
       await dbRun('PRAGMA foreign_keys = ON');
     }
 

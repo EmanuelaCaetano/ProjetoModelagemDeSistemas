@@ -1,6 +1,6 @@
 export interface CreateScheduleDto {
     clientId: number;
-    petId: number;
+    petId?: number;
     veterinarianId: number;
     date: string;
     notes?: string;

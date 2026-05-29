@@ -1,7 +1,7 @@
 export type ScheduleStatus = "scheduled" | "cancelled" | "completed";
 export interface ScheduleBase {
     clientId: number;
-    petId: number;
+    petId?: number;
     veterinarianId: number;
     date: string;
     status?: ScheduleStatus;
