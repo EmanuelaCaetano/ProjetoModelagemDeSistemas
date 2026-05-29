@@ -12,17 +12,17 @@ import ScheduleConfirmationModal from './ScheduleConfirmationModal';
 import 'react-calendar/dist/Calendar.css';
 import './CalendarScheduling.css';
 
-const SecretaryCalendarScheduling = () => {
-  const { createSchedule, removeSchedule, loading: contextLoading } = useSchedules();
-  
+const ClientCalendarScheduling = () => {
+  const { createSchedule, getSchedulesByDate, isTimeSlotAvailable, loading: contextLoading } = useSchedules();
+
   const [selectedDate, setSelectedDate] = useState(null);
   const [calendarValue, setCalendarValue] = useState(new Date());
 
-  const [clients, setClients] = useState([]);
+  const [pets, setPets] = useState([]);
   const [veterinarians, setVeterinarians] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
 
-  const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedPet, setSelectedPet] = useState(null);
   const [selectedVeterinarian, setSelectedVeterinarian] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
 
@@ -31,28 +31,18 @@ const SecretaryCalendarScheduling = () => {
   const [success, setSuccess] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
 
+  // Carregar pets do cliente
   useEffect(() => {
-    loadInitialData();
+    loadClientPets();
   }, []);
 
-  const loadInitialData = async () => {
-    setLoading(true);
-    setError('');
-
+  const loadClientPets = async () => {
     try {
-      const usersResponse = await axios.get('/auth/users');
-
-      const users = Array.isArray(usersResponse.data) ? usersResponse.data : [];
-      const clientsList = users.filter((user) => user.tipoUsuario === 'cliente');
-      const veterinariansList = users.filter((user) => user.tipoUsuario === 'medico' || user.role === 'medico');
-
-      setClients(clientsList);
-      setVeterinarians(veterinariansList);
+      const response = await axios.get('/animals');
+      setPets(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
-      console.error('Erro ao carregar dados da agenda da secretaria:', err);
-      setError('Erro ao carregar os dados de agendamento. Atualize a página e tente novamente.');
-    } finally {
-      setLoading(false);
+      console.error('Erro ao carregar pets:', err);
+      setError('Erro ao carregar seus pets');
     }
   };
 
@@ -92,9 +82,6 @@ const SecretaryCalendarScheduling = () => {
     setAvailableSlots(vet.availableSlots || []);
   };
 
-  // Nota: os pets já vêm do banco de dados com o campo `clienteId`.
-  // A secretaria seleciona diretamente um pet registrado; não há seleção de cliente.
-
   const isTileDayAvailable = (date) => {
     const today = startOfDay(new Date());
 
@@ -124,8 +111,8 @@ const SecretaryCalendarScheduling = () => {
   };
 
   const handleConfirmSchedule = async () => {
-    if (!selectedDate || !selectedClient || !selectedVeterinarian || !selectedTime) {
-      setError('Por favor, selecione cliente, médico, data e horário antes de confirmar.');
+    if (!selectedDate || !selectedPet || !selectedVeterinarian || !selectedTime) {
+      setError('Por favor, selecione pet, médico, data e horário antes de confirmar.');
       return;
     }
 
@@ -133,11 +120,7 @@ const SecretaryCalendarScheduling = () => {
     setError('');
 
     try {
-      const isValid = await validateTimeSlot(
-        selectedVeterinarian.id,
-        selectedDate,
-        selectedTime.time
-      );
+      const isValid = isTimeSlotAvailable(selectedVeterinarian.id, selectedDate, selectedTime.time);
 
       if (!isValid) {
         setError('Este horário não está mais disponível. Escolha outro horário.');
@@ -156,18 +139,18 @@ const SecretaryCalendarScheduling = () => {
       }
 
       const result = await createSchedule({
-        clientId: selectedClient.id,
+        petId: selectedPet.id,
         veterinarianId: selectedVeterinarian.id,
         date: appointmentDate.toISOString(),
         notes: '',
       });
 
       if (result.success) {
-        setSuccess('Consulta agendada com sucesso.');
+        setSuccess('Consulta agendada com sucesso!');
         setShowConfirmation(false);
         setSelectedDate(null);
         setCalendarValue(new Date());
-        setSelectedClient(null);
+        setSelectedPet(null);
         setSelectedVeterinarian(null);
         setSelectedTime(null);
         setAvailableSlots([]);
@@ -180,37 +163,15 @@ const SecretaryCalendarScheduling = () => {
       }
     } catch (err) {
       console.error('Erro ao agendar consulta:', err);
-      const errorMsg = err.response?.data?.error || err.message || 'Erro ao agendar consulta.';
-      setError(errorMsg);
+      setError('Erro ao agendar consulta. Tente novamente.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCancelSchedule = async (scheduleId) => {
-    if (!window.confirm('Tem certeza que deseja cancelar esta consulta?')) {
-      return;
-    }
-
-    setLoading(true);
-    const result = await removeSchedule(scheduleId);
-    
-    if (result.success) {
-      setSuccess('Consulta cancelada com sucesso.');
-      setError('');
-      setTimeout(() => {
-        setSuccess('');
-      }, 3000);
-    } else {
-      setError(result.error || 'Erro ao cancelar consulta');
-    }
-    
-    setLoading(false);
-  };
-
   return (
     <div className="calendar-scheduling-container">
-      <h2>📅 Agenda da Secretaria</h2>
+      <h2>📅 Agende Sua Consulta</h2>
 
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
@@ -250,19 +211,19 @@ const SecretaryCalendarScheduling = () => {
               </p>
 
               <div className="form-group">
-                <label>👤 Selecione o Cliente</label>
-                {clients.length === 0 ? (
-                  <p className="text-muted">Nenhum cliente disponível. Verifique os usuários cadastrados.</p>
+                <label>🐾 Selecione o Pet</label>
+                {pets.length === 0 ? (
+                  <p className="text-muted">Você não tem animais cadastrados. Cadastre um pet para agendar.</p>
                 ) : (
                   <select
-                    value={selectedClient?.id || ''}
-                    onChange={(e) => setSelectedClient(clients.find((client) => client.id === Number(e.target.value)))}
+                    value={selectedPet?.id || ''}
+                    onChange={(e) => setSelectedPet(pets.find((pet) => pet.id === Number(e.target.value)))}
                     className="form-select"
                   >
-                    <option value="">-- Escolha um cliente --</option>
-                    {clients.map((client) => (
-                      <option key={client.id} value={client.id}>
-                        {client.nome}
+                    <option value="">-- Escolha um pet --</option>
+                    {pets.map((pet) => (
+                      <option key={pet.id} value={pet.id}>
+                        {pet.nome} ({pet.especie})
                       </option>
                     ))}
                   </select>
@@ -276,74 +237,69 @@ const SecretaryCalendarScheduling = () => {
                 ) : veterinarians.length === 0 ? (
                   <p className="text-muted">Nenhum veterinário disponível nesta data.</p>
                 ) : (
-                  <div className="veterinarians-list">
+                  <select
+                    value={selectedVeterinarian?.id || ''}
+                    onChange={(e) => {
+                      const vet = veterinarians.find((v) => v.id === Number(e.target.value));
+                      if (vet) handleVeterinarianSelect(vet);
+                    }}
+                    className="form-select"
+                  >
+                    <option value="">-- Escolha um veterinário --</option>
                     {veterinarians.map((vet) => (
-                      <div
-                        key={vet.id}
-                        className={`vet-card ${selectedVeterinarian?.id === vet.id ? 'selected' : ''}`}
-                        onClick={() => handleVeterinarianSelect(vet)}
-                      >
-                        <div className="vet-name">{vet.nome}</div>
-                        {vet.especialidade && <div className="vet-specialty">{vet.especialidade}</div>}
-                        <div className="vet-availability">
-                          {vet.availableSlots?.length || 0} horários
-                        </div>
-                      </div>
+                      <option key={vet.id} value={vet.id}>
+                        {vet.nome} ({vet.especialidade || 'Não informada'})
+                      </option>
                     ))}
-                  </div>
+                  </select>
                 )}
               </div>
 
-              {selectedVeterinarian && (
-                <div className="form-group">
-                  <label>⏰ Selecione o Horário</label>
-                  {availableSlots.length > 0 ? (
-                    <div className="time-slots-grid">
-                      {availableSlots.map((slot) => (
-                        <button
-                          key={slot.time}
-                          type="button"
-                          className={`time-slot ${selectedTime?.time === slot.time ? 'selected' : ''}`}
-                          onClick={() => setSelectedTime(slot)}
-                        >
-                          {slot.time}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-muted">Nenhum horário disponível para este veterinário nesta data.</p>
-                  )}
-                </div>
-              )}
+              <div className="form-group">
+                <label>⏰ Selecione o Horário</label>
+                {!selectedVeterinarian ? (
+                  <p className="text-muted">Selecione um veterinário primeiro para ver horários disponíveis.</p>
+                ) : availableSlots.length === 0 ? (
+                  <p className="text-muted">Nenhum horário disponível para este veterinário.</p>
+                ) : (
+                  <select
+                    value={selectedTime?.time || ''}
+                    onChange={(e) => {
+                      const slot = availableSlots.find((s) => s.time === e.target.value);
+                      setSelectedTime(slot);
+                    }}
+                    className="form-select"
+                  >
+                    <option value="">-- Escolha um horário --</option>
+                    {availableSlots.map((slot) => (
+                      <option key={slot.time} value={slot.time}>
+                        {slot.time}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
 
               <div className="form-actions">
                 <button
-                  className="btn btn-primary btn-lg"
-                  type="button"
-                  onClick={() => setShowConfirmation(true)}
-                  disabled={!selectedClient || !selectedVeterinarian || !selectedTime || loading || contextLoading}
-                >
-                  ✓ Confirmar Agendamento
-                </button>
-                <button
-                  className="btn btn-secondary"
-                  type="button"
                   onClick={() => {
-                    setSelectedDate(null);
-                    setCalendarValue(new Date());
-                    setSelectedClient(null);
-                    setSelectedVeterinarian(null);
-                    setSelectedTime(null);
-                    setAvailableSlots([]);
+                    if (selectedPet && selectedVeterinarian && selectedTime) {
+                      setShowConfirmation(true);
+                    } else {
+                      setError('Preencha todos os campos para confirmar o agendamento.');
+                    }
                   }}
+                  disabled={!selectedPet || !selectedVeterinarian || !selectedTime || loading || contextLoading}
+                  className="btn btn-primary"
                 >
-                  Limpar
+                  {loading || contextLoading ? 'Agendando...' : 'Confirmar Agendamento'}
                 </button>
               </div>
             </div>
           ) : (
-            <div className="empty-state">
-              <p>👈 Selecione uma data no calendário para começar.</p>
+            <div className="booking-form">
+              <h3>Selecione uma data</h3>
+              <p className="text-muted">Escolha uma data no calendário à esquerda para visualizar veterinários e horários disponíveis.</p>
             </div>
           )}
         </div>
@@ -352,16 +308,16 @@ const SecretaryCalendarScheduling = () => {
       {showConfirmation && (
         <ScheduleConfirmationModal
           selectedDate={selectedDate}
-          selectedClient={selectedClient}
+          selectedPet={selectedPet}
           selectedVeterinarian={selectedVeterinarian}
           selectedTime={selectedTime}
           onConfirm={handleConfirmSchedule}
           onCancel={() => setShowConfirmation(false)}
-          loading={loading || contextLoading}
+          loading={loading}
         />
       )}
     </div>
   );
 };
 
-export default SecretaryCalendarScheduling;
+export default ClientCalendarScheduling;

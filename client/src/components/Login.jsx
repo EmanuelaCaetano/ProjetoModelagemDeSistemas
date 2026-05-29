@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Login.css';
 
@@ -8,6 +9,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +18,10 @@ const Login = () => {
 
     const result = await login(email, senha);
 
-    if (!result.success) {
+    if (result.success) {
+      // Redirecionar para dashboard após login bem-sucedido
+      navigate('/dashboard');
+    } else {
       setError(result.error);
     }
 

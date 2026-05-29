@@ -1,29 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
-import { fetchAllSchedules } from '../../../services/scheduleService';
+import { useSchedules } from '../../../contexts/ScheduleContext';
 import SecretaryCalendarScheduling from '../../../components/SecretaryCalendarScheduling';
 
 const SecretarySchedulePage = () => {
   const { user } = useAuth();
+  const { allSchedules, loading, error, syncSchedules } = useSchedules();
   const [activeTab, setActiveTab] = useState('agenda');
-  const [schedules, setSchedules] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const scheduleResponse = await fetchAllSchedules();
-      setSchedules(scheduleResponse);
-    } catch (err) {
-      setError('Não foi possível carregar as consultas da agenda.');
-    }
-    setLoading(false);
-  };
+    syncSchedules();
+  }, [syncSchedules]);
 
   if (!user || user.tipoUsuario !== 'secretario') {
     return <div>Você não tem permissão para acessar esta página.</div>;
@@ -49,7 +36,7 @@ const SecretarySchedulePage = () => {
           className={`tab-button ${activeTab === 'gerenciar' ? 'active' : ''}`}
           onClick={() => setActiveTab('gerenciar')}
         >
-          📋 Gerenciar Consultas
+          📋 Gerenciar Consultas ({allSchedules.length})
         </button>
       </div>
 
@@ -62,12 +49,13 @@ const SecretarySchedulePage = () => {
           <div className="schedule-table-wrapper">
             {loading ? (
               <div>Carregando consultas...</div>
-            ) : schedules.length === 0 ? (
+            ) : allSchedules.length === 0 ? (
               <div>Não há consultas agendadas.</div>
             ) : (
               <table className="schedule-table">
                 <thead>
                   <tr>
+                    <th>Cliente</th>
                     <th>Pet</th>
                     <th>Médico</th>
                     <th>Data / Horário</th>
@@ -76,12 +64,20 @@ const SecretarySchedulePage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {schedules.map((item) => (
+                  {allSchedules.map((item) => (
                     <tr key={item.id}>
+                      <td>{item.client?.nome || '-'}</td>
                       <td>{item.pet?.nome || '-'}</td>
                       <td>{item.veterinarian?.nome || '-'}</td>
                       <td>{new Date(item.date).toLocaleString('pt-BR')}</td>
-                      <td>{item.status}</td>
+                      <td>
+                        <span className={`status-badge status-${item.status}`}>
+                          {item.status === 'scheduled' && 'Agendada'}
+                          {item.status === 'confirmed' && 'Confirmada'}
+                          {item.status === 'cancelled' && 'Cancelada'}
+                          {item.status === 'completed' && 'Concluída'}
+                        </span>
+                      </td>
                       <td>{item.notes || '—'}</td>
                     </tr>
                   ))}
