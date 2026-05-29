@@ -108,6 +108,37 @@ db.serialize(async () => {
       );
     `);
 
+    const existingMedicalRecordsTable = await dbGet("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'medical_records'");
+    if (existingMedicalRecordsTable && typeof existingMedicalRecordsTable.sql === 'string' && !existingMedicalRecordsTable.sql.includes('scheduleId')) {
+      console.log('Migração: atualizando tabela medical_records para incluir scheduleId.');
+      await dbRun('PRAGMA foreign_keys = OFF');
+      await dbRun('ALTER TABLE medical_records RENAME TO medical_records_old');
+      await dbRun(`
+        CREATE TABLE medical_records (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          scheduleId TEXT,
+          animalId INTEGER NOT NULL,
+          doctorId INTEGER NOT NULL,
+          diagnostico TEXT NOT NULL,
+          observacoes TEXT,
+          medicamentos TEXT,
+          createdAt TEXT NOT NULL,
+          updatedAt TEXT NOT NULL,
+          FOREIGN KEY (scheduleId) REFERENCES schedules(id),
+          FOREIGN KEY (animalId) REFERENCES animals(id),
+          FOREIGN KEY (doctorId) REFERENCES users(id),
+          UNIQUE(animalId)
+        );
+      `);
+      await dbRun(`
+        INSERT INTO medical_records (id, animalId, doctorId, diagnostico, observacoes, medicamentos, createdAt, updatedAt)
+        SELECT id, animalId, doctorId, diagnostico, observacoes, medicamentos, createdAt, updatedAt
+        FROM medical_records_old;
+      `);
+      await dbRun('DROP TABLE medical_records_old');
+      await dbRun('PRAGMA foreign_keys = ON');
+    }
+
     await dbRun(`
       CREATE TABLE IF NOT EXISTS schedules (
         id TEXT PRIMARY KEY,

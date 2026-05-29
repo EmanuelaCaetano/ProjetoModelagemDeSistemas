@@ -27,7 +27,7 @@ const Login = () => {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <h1>🏥 NewPet</h1>
+          <h1>NewPet</h1>
           <h2>Clínica Veterinária</h2>
           <p>Faça login para acessar o sistema</p>
         </div>

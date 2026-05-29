@@ -3,6 +3,8 @@ import {
   createMedicalRecordController,
   listMedicalRecordsByAnimalController,
   listMyMedicalRecordsController,
+  updateMedicalRecordController,
+  deleteMedicalRecordController,
 } from "../controllers/medicalRecord.controller";
 import { authenticateJWT } from "../../../middlewares/auth";
 import { authorizeRoles } from "../../../middlewares/authorize";
@@ -12,5 +14,7 @@ const router = Router();
 router.post("/", authenticateJWT, authorizeRoles("medico"), createMedicalRecordController);
 router.get("/my", authenticateJWT, authorizeRoles("medico"), listMyMedicalRecordsController);
 router.get("/animal/:id", authenticateJWT, listMedicalRecordsByAnimalController);
+router.put("/:id", authenticateJWT, authorizeRoles("medico"), updateMedicalRecordController);
+router.delete("/:id", authenticateJWT, authorizeRoles("medico", "administrador"), deleteMedicalRecordController);
 
 export default router;

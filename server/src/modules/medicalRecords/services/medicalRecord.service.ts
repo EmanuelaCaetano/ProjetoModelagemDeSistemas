@@ -9,6 +9,10 @@ export async function findMedicalRecordByAnimal(animalId: number): Promise<Medic
   return await dbGet("SELECT * FROM medical_records WHERE animalId = ?", [animalId]);
 }
 
+export async function findMedicalRecordById(id: number): Promise<MedicalRecord | undefined> {
+  return await dbGet("SELECT * FROM medical_records WHERE id = ?", [id]);
+}
+
 export async function createOrUpdateMedicalRecord(data: CreateMedicalRecordDto & { doctorId: number }): Promise<MedicalRecord> {
   const now = new Date().toISOString();
   const existingRecord = await findMedicalRecordByAnimal(data.animalId);
@@ -92,6 +96,37 @@ export async function findMedicalRecordsByDoctor(doctorId: number): Promise<Medi
       email: row.owner_email,
     },
   }));
+}
+
+export async function updateMedicalRecordById(id: number, data: Partial<CreateMedicalRecordDto> & { doctorId?: number }): Promise<MedicalRecord> {
+  const now = new Date().toISOString();
+  const existing = await findMedicalRecordById(id);
+  if (!existing) throw new Error('Prontuário não encontrado');
+
+  const diagnostico = data.diagnostico ?? existing.diagnostico;
+  const observacoes = data.observacoes ?? existing.observacoes;
+  const medicamentos = data.medicamentos ?? existing.medicamentos;
+  const scheduleId = data.scheduleId ?? existing.scheduleId;
+  const doctorId = data.doctorId ?? existing.doctorId;
+
+  await dbRun(
+    `UPDATE medical_records SET scheduleId = ?, doctorId = ?, diagnostico = ?, observacoes = ?, medicamentos = ?, updatedAt = ? WHERE id = ?`,
+    [scheduleId ?? null, doctorId, diagnostico, observacoes ?? null, medicamentos ?? null, now, id]
+  );
+
+  return {
+    ...existing,
+    scheduleId,
+    doctorId,
+    diagnostico,
+    observacoes,
+    medicamentos,
+    updatedAt: now,
+  } as MedicalRecord;
+}
+
+export async function deleteMedicalRecordById(id: number): Promise<void> {
+  await dbRun(`DELETE FROM medical_records WHERE id = ?`, [id]);
 }
 
 export async function findMedicalRecordsByAnimal(animalId: number): Promise<MedicalRecordWithRelations[]> {

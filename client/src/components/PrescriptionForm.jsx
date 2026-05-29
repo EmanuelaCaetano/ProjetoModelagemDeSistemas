@@ -74,7 +74,6 @@ const PrescriptionForm = ({ schedules }) => {
 
   return (
     <div className="prescription-form">
-      <h2>Gerar Receituário</h2>
       <form onSubmit={handleExport}>
         <div className="form-group">
           <label htmlFor="appointmentId">Consulta</label>
