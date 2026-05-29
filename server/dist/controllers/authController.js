@@ -41,6 +41,24 @@ async function register(req, res) {
     if (!body.nome || !body.email || !body.senha || !body.role) {
         return res.status(400).json({ error: "Nome, e-mail, senha e tipo de usuário são obrigatórios." });
     }
+    if (body.role !== 'cliente') {
+        const authHeader = req.headers.authorization;
+        const bearerToken = typeof authHeader === "string" && authHeader.startsWith("Bearer ")
+            ? authHeader.slice(7)
+            : undefined;
+        if (!bearerToken) {
+            return res.status(403).json({ error: "Apenas administradores podem cadastrar médicos, secretários ou administradores." });
+        }
+        try {
+            const payload = (0, jwt_1.verifyToken)(bearerToken);
+            if (payload.role !== 'administrador') {
+                return res.status(403).json({ error: "Apenas administradores podem cadastrar médicos, secretários ou administradores." });
+            }
+        }
+        catch (error) {
+            return res.status(403).json({ error: "Token inválido para cadastro de usuários com função especial." });
+        }
+    }
     try {
         const normalizedEmail = body.email.trim().toLowerCase();
         body.email = normalizedEmail;

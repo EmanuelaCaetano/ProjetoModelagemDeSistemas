@@ -6,9 +6,9 @@ const router = Router();
 
 router.post("/login", login);
 router.post("/register", register);
-router.get("/users", getUsers);
-router.put("/users/:id", updateUserController);
-router.delete("/users/:id", deleteUserController);
+router.get("/users", authenticateJWT, getUsers);
+router.put("/users/:id", authenticateJWT, updateUserController);
+router.delete("/users/:id", authenticateJWT, deleteUserController);
 
 // Rotas protegidas para perfil do usuário autenticado
 router.put("/profile", authenticateJWT, updateProfileController);

@@ -4,6 +4,7 @@ import authRoutes from "./routes/authRoutes";
 import petRoutes from "./routes/petRoutes";
 import appointmentRoutes from "./routes/appointmentRoutes";
 import scheduleRoutes from "./modules/schedules/routes/schedule.routes";
+import medicalRecordRoutes from "./modules/medicalRecords/routes/medicalRecord.routes";
 import "./config/db";
 
 const app = express();
@@ -18,6 +19,7 @@ app.use("/auth", authRoutes);
 app.use("/pets", petRoutes);
 app.use("/appointments", appointmentRoutes);
 app.use("/schedules", scheduleRoutes);
+app.use("/medical-records", medicalRecordRoutes);
 
 // Aguardar um pouco para garantir que o banco foi inicializado
 setTimeout(() => {

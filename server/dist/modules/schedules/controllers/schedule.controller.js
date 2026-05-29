@@ -40,10 +40,12 @@ async function listSchedulesController(req, res) {
 }
 async function listMySchedulesController(req, res) {
     try {
-        if (!req.userId) {
+        if (!req.userId || !req.userRole) {
             return res.status(401).json({ error: "Usuário não autenticado." });
         }
-        const schedules = await (0, schedule_service_1.findSchedulesByClient)(req.userId);
+        const schedules = req.userRole === 'medico'
+            ? await findSchedulesByVeterinarian(req.userId)
+            : await (0, schedule_service_1.findSchedulesByClient)(req.userId);
         return res.json(schedules);
     }
     catch (error) {

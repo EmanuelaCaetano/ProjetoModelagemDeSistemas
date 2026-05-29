@@ -91,6 +91,24 @@ db.serialize(async () => {
     `);
 
     await dbRun(`
+      CREATE TABLE IF NOT EXISTS medical_records (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        scheduleId TEXT,
+        animalId INTEGER NOT NULL,
+        doctorId INTEGER NOT NULL,
+        diagnostico TEXT NOT NULL,
+        observacoes TEXT,
+        medicamentos TEXT,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        FOREIGN KEY (scheduleId) REFERENCES schedules(id),
+        FOREIGN KEY (animalId) REFERENCES animals(id),
+        FOREIGN KEY (doctorId) REFERENCES users(id),
+        UNIQUE(animalId)
+      );
+    `);
+
+    await dbRun(`
       CREATE TABLE IF NOT EXISTS schedules (
         id TEXT PRIMARY KEY,
         clientId INTEGER NOT NULL,

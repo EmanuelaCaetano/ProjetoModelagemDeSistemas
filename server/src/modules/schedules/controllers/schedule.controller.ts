@@ -8,6 +8,7 @@ import {
   findSchedulesByDate,
   findScheduleById,
   findSchedulesByClient,
+  findSchedulesByVeterinarian,
   updateSchedule,
 } from "../services/schedule.service";
 import { CreateScheduleDto } from "../dtos/createSchedule.dto";
@@ -45,11 +46,14 @@ export async function listSchedulesController(req: AuthRequest, res: Response) {
 
 export async function listMySchedulesController(req: AuthRequest, res: Response) {
   try {
-    if (!req.userId) {
+    if (!req.userId || !req.userRole) {
       return res.status(401).json({ error: "Usuário não autenticado." });
     }
 
-    const schedules = await findSchedulesByClient(req.userId);
+    const schedules = req.userRole === 'medico'
+      ? await findSchedulesByVeterinarian(req.userId)
+      : await findSchedulesByClient(req.userId);
+
     return res.json(schedules);
   } catch (error) {
     return res.status(500).json({ error: "Erro ao buscar suas consultas." });
