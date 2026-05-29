@@ -36,7 +36,11 @@ const ProtectedRoute = ({ children }) => {
 const AppContent = () => {
   const { user } = useAuth();
 
-  const DashboardComponent = user?.tipoUsuario === 'cliente' ? ClientDashboard : Dashboard;
+  const DashboardComponent = user?.tipoUsuario === 'cliente'
+    ? ClientDashboard
+    : user?.tipoUsuario === 'medico'
+    ? DoctorSchedulePage
+    : Dashboard;
 
   const SchedulesPage = () => {
     if (!user) return <Navigate to="/login" />;

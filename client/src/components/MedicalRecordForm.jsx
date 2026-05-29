@@ -1,14 +1,25 @@
-import { useState } from 'react';
-import { createMedicalRecord } from '../services/medicalRecordService';
+import { useState, useEffect } from 'react';
+import { createMedicalRecord, updateMedicalRecord } from '../services/medicalRecordService';
 import './MedicalRecordForm.css';
 
-const MedicalRecordForm = ({ schedules, onSuccess }) => {
+const MedicalRecordForm = ({ schedules, onSuccess, editingRecord, onCancel }) => {
   const [appointmentId, setAppointmentId] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
   const [observacoes, setObservacoes] = useState('');
   const [medicamentos, setMedicamentos] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (editingRecord) {
+      setAppointmentId(editingRecord.scheduleId ?? '');
+      setDiagnostico(editingRecord.diagnostico ?? '');
+      setObservacoes(editingRecord.observacoes ?? '');
+      setMedicamentos(editingRecord.medicamentos ?? '');
+      setMessage('');
+      setError('');
+    }
+  }, [editingRecord]);
 
   const selectedSchedule = schedules.find((schedule) => schedule.id === appointmentId);
 
@@ -28,20 +39,28 @@ const MedicalRecordForm = ({ schedules, onSuccess }) => {
     }
 
     try {
-      await createMedicalRecord({
-        appointmentId: selectedSchedule?.id,
-        animalId: selectedSchedule?.pet?.id,
+      const payload = {
+        scheduleId: selectedSchedule?.id ?? appointmentId,
+        animalId: selectedSchedule?.pet?.id ?? editingRecord?.animalId,
         diagnostico: diagnostico.trim(),
         observacoes: observacoes.trim(),
         medicamentos: medicamentos.trim(),
-      });
+      };
 
-      setMessage('Prontuário salvo com sucesso.');
+      if (editingRecord && editingRecord.id) {
+        await updateMedicalRecord(editingRecord.id, payload);
+        setMessage('Prontuário atualizado com sucesso.');
+      } else {
+        await createMedicalRecord(payload);
+        setMessage('Prontuário salvo com sucesso.');
+      }
+
       setDiagnostico('');
       setObservacoes('');
       setMedicamentos('');
       setAppointmentId('');
       onSuccess?.();
+      onCancel?.();
     } catch (err) {
       setError(err.response?.data?.error || 'Erro ao salvar o prontuário.');
     }
@@ -49,14 +68,13 @@ const MedicalRecordForm = ({ schedules, onSuccess }) => {
 
   return (
     <div className="medical-record-form">
-      <h2>Registrar Prontuário</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="appointmentId">Consulta</label>
           <select
             id="appointmentId"
             value={appointmentId}
-            onChange={(e) => setAppointmentId(e.target.value)}
+            onChange={(e) => setAppointmentId(e.target.value ? parseInt(e.target.value, 10) : '')}
           >
             <option value="">Selecione uma consulta</option>
             {schedules.map((schedule) => (
@@ -109,9 +127,16 @@ const MedicalRecordForm = ({ schedules, onSuccess }) => {
         {error && <div className="form-error">{error}</div>}
         {message && <div className="form-success">{message}</div>}
 
-        <button type="submit" className="btn-submit">
-          Salvar prontuário
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="btn-submit">
+            {editingRecord ? 'Atualizar prontuário' : 'Salvar prontuário'}
+          </button>
+          {editingRecord && (
+            <button type="button" className="btn-cancel" onClick={() => onCancel?.()}>
+              Cancelar
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );

@@ -8,6 +8,7 @@ import {
   findMedicalRecordsByDoctor,
 } from "../services/medicalRecord.service";
 import { CreateMedicalRecordDto } from "../dtos/createMedicalRecord.dto";
+import { updateMedicalRecordById, deleteMedicalRecordById, findMedicalRecordById } from "../services/medicalRecord.service";
 
 export async function createMedicalRecordController(req: AuthRequest, res: Response) {
   try {
@@ -92,5 +93,50 @@ export async function listMedicalRecordsByAnimalController(req: AuthRequest, res
   } catch (error) {
     console.error("Erro ao buscar prontuários do animal:", error);
     return res.status(500).json({ error: "Erro interno ao buscar prontuários do animal." });
+  }
+}
+
+export async function updateMedicalRecordController(req: AuthRequest, res: Response) {
+  try {
+    const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = idParam ? parseInt(idParam, 10) : NaN;
+    if (isNaN(id)) return res.status(400).json({ error: 'ID inválido.' });
+
+    const body = req.body as Partial<CreateMedicalRecordDto>;
+    const existing = await findMedicalRecordById(id);
+    if (!existing) return res.status(404).json({ error: 'Prontuário não encontrado.' });
+
+    // Apenas o médico responsável ou administrador podem editar
+    if (req.userRole === 'medico' && req.userId !== existing.doctorId) {
+      return res.status(403).json({ error: 'Apenas o médico responsável pode editar este prontuário.' });
+    }
+
+    const updated = await updateMedicalRecordById(id, { ...body, doctorId: existing.doctorId });
+    return res.json({ message: 'Prontuário atualizado com sucesso.', prontuario: updated });
+  } catch (error) {
+    console.error('Erro ao atualizar prontuário:', error);
+    return res.status(500).json({ error: 'Erro interno ao atualizar prontuário.' });
+  }
+}
+
+export async function deleteMedicalRecordController(req: AuthRequest, res: Response) {
+  try {
+    const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const id = idParam ? parseInt(idParam, 10) : NaN;
+    if (isNaN(id)) return res.status(400).json({ error: 'ID inválido.' });
+
+    const existing = await findMedicalRecordById(id);
+    if (!existing) return res.status(404).json({ error: 'Prontuário não encontrado.' });
+
+    // Apenas o médico responsável ou administrador podem excluir
+    if (req.userRole === 'medico' && req.userId !== existing.doctorId) {
+      return res.status(403).json({ error: 'Apenas o médico responsável pode excluir este prontuário.' });
+    }
+
+    await deleteMedicalRecordById(id);
+    return res.json({ message: 'Prontuário excluído com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao excluir prontuário:', error);
+    return res.status(500).json({ error: 'Erro interno ao excluir prontuário.' });
   }
 }
