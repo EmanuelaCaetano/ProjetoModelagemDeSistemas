@@ -24,6 +24,7 @@ const SecretaryCalendarScheduling = () => {
   const [upcomingSchedules, setUpcomingSchedules] = useState([]);
 
   const [selectedPet, setSelectedPet] = useState(null);
+  const [selectedClient, setSelectedClient] = useState(null);
   const [selectedVeterinarian, setSelectedVeterinarian] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
 
@@ -41,9 +42,9 @@ const SecretaryCalendarScheduling = () => {
     setError('');
 
     try {
-      const [usersResponse, animalsResponse, schedulesResponse] = await Promise.all([
+      const [usersResponse, petsResponse, schedulesResponse] = await Promise.all([
         axios.get('/auth/users'),
-        axios.get('/animals'),
+        axios.get('/pets'),
         fetchAllSchedules(),
       ]);
 
@@ -52,7 +53,12 @@ const SecretaryCalendarScheduling = () => {
       const veterinariansList = users.filter((user) => user.tipoUsuario === 'medico' || user.role === 'medico');
 
       setClients(clientsList);
-      setPets(Array.isArray(animalsResponse.data) ? animalsResponse.data : []);
+      const petsData = Array.isArray(petsResponse.data)
+        ? petsResponse.data
+        : (petsResponse.data && Array.isArray(petsResponse.data.pets))
+        ? petsResponse.data.pets
+        : [];
+      setPets(petsData);
       setVeterinarians(veterinariansList);
 
       const upcomingAppointments = Array.isArray(schedulesResponse)
@@ -268,9 +274,37 @@ const SecretaryCalendarScheduling = () => {
               </p>
 
               <div className="form-group">
-                <label>� Selecione o Pet</label>
-                {pets.length === 0 ? (
-                  <p className="text-muted">Nenhum animal cadastrado. Cadastre pets antes de agendar.</p>
+                <label>👤 Selecione o Cliente</label>
+                {clients.length === 0 ? (
+                  <p className="text-muted">Nenhum cliente cadastrado.</p>
+                ) : (
+                  <select
+                    value={selectedClient?.id || ''}
+                    onChange={(e) => {
+                      const client = clients.find((c) => c.id === Number(e.target.value)) || null;
+                      setSelectedClient(client);
+                      setSelectedPet(null);
+                      setAvailableSlots([]);
+                      setError('');
+                    }}
+                    className="form-select"
+                  >
+                    <option value="">-- Escolha um cliente --</option>
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>
+                        {client.nome}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                <div style={{ height: 12 }} />
+
+                <label>🐾 Selecione o Pet</label>
+                {!selectedClient ? (
+                  <p className="text-muted">Selecione um cliente para ver os pets disponíveis.</p>
+                ) : pets.filter((p) => p.clienteId === selectedClient?.id).length === 0 ? (
+                  <p className="text-muted">Nenhum animal disponível para o cliente selecionado.</p>
                 ) : (
                   <select
                     value={selectedPet?.id || ''}
@@ -278,17 +312,17 @@ const SecretaryCalendarScheduling = () => {
                     className="form-select"
                   >
                     <option value="">-- Escolha um pet --</option>
-                    {pets.map((pet) => (
-                      <option key={pet.id} value={pet.id}>
-                        {pet.nome} ({pet.especie})
-                      </option>
-                    ))}
+                    {pets
+                      .filter((pet) => pet.clienteId === selectedClient.id)
+                      .map((pet) => (
+                        <option key={pet.id} value={pet.id}>
+                          {pet.nome} ({pet.especie})
+                        </option>
+                      ))}
                   </select>
                 )}
                 {selectedPet && (
-                  <p className="text-muted">
-                    Cliente: {clients.find((client) => client.id === selectedPet.clienteId)?.nome || 'Automático'}
-                  </p>
+                  <p className="text-muted">Cliente: {selectedClient?.nome || 'Automático'}</p>
                 )}
               </div>
 
@@ -359,7 +393,8 @@ const SecretaryCalendarScheduling = () => {
                     setSelectedVeterinarian(null);
                     setSelectedTime(null);
                     setAvailableSlots([]);
-                    setFilteredPets([]);
+                    setError('');
+                    setSuccess('');
                   }}
                 >
                   Limpar
